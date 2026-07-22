@@ -1,0 +1,1 @@
+<span class="{{ $class }}"> {{ $error }} </span>
