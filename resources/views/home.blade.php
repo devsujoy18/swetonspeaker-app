@@ -2177,7 +2177,7 @@
                                 <a href="https://www.swetonspeakers.com/speaker/pro-loudspeaker" class="custom-btn-primary custom-pill" style="background-color: #cf1f1f;">View Pro Audio Range</a>
                             </div>--}}
                             
-                            <livewire:tag-component :typeId="1" />
+                            <x-home-tags :type-id="1" />
 
                             <div style="">
                                 <p class="custom-desc" style="margin-bottom: 0;">Share your application, target output, and cabinet constraints. we’ll suggest the best model + enclosure direction.</p>
@@ -2615,7 +2615,7 @@
                                 <a href="https://shop.swetonspeakers.com/home-loudspeaker/dividing-cross-over-network" class="custom-pill">Dividing Cross Over Network</a>
                                  <a href="https://www.swetonspeakers.com/speaker/home-loudspeaker/car-speaker-series" class="custom-pill">Car Speaker Series</a>
                                  <!--<a href="https://www.swetonspeakers.com/speaker/home-loudspeaker" class="custom-btn-primary custom-pill" style="background-color: #cf1f1f;">Home Audio Drivers</a>-->
-                                <livewire:tag-component :typeId="2" />
+                                <x-home-tags :type-id="2" />
                             </div>
                             
                             
