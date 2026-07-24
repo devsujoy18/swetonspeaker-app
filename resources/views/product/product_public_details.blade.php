@@ -128,7 +128,7 @@
                     <div class="col-md-12 mb-4">
                         <!--<span class="inchesWrapper"><i class="fas fa-circle-notch"></i> 21.0 In</span>-->
                         @foreach($product->combinations as $combination)
-                        <span class="oham">{{ $combination->name }}</span>
+                        <span class="oham">{{ $combination->display_name }}</span>
                         @endforeach
                         {{--<a href="#" class="compare"><i class="fas fa-balance-scale"></i> Compare</a>--}}
                         @if($product->drawing)

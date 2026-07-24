@@ -2,15 +2,15 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\Session;
 use App\Models\Product;
+use App\Models\Productcombination;
+use Illuminate\Support\Facades\Session;
 
-
-
-class CartManagement {
-
+class CartManagement
+{
     // Add items to cart
-    public static function addItemsToCart($productId, $combinationId) {
+    public static function addItemsToCart($productId, $combinationId)
+    {
         $cart_items = Session::get('cart_items', []);
         $existing_item = null;
         $message = '';
@@ -31,24 +31,24 @@ class CartManagement {
         } else {
             // Fetch the product with the specific combination
             $product = Product::with([
-                'category', 
+                'category',
                 'combinations' => function ($query) use ($combinationId) {
                     $query->where('id', $combinationId);
                 },
             ])
-            ->where('status', 0)
-            ->where('id', $productId)
-            ->first();
+                ->where('status', 0)
+                ->where('id', $productId)
+                ->first();
 
             // If product exists, add it to the cart
-            if($product){
+            if ($product) {
                 $combination = $product->combinations->first();
-                $cart_items[] = array(
+                $cart_items[] = [
                     'productId' => $productId,
                     'combinationId' => $combinationId,
                     'product_name' => $product->name,
-                    'combination' => $combination->name
-                );
+                    'combination' => $combination->display_name,
+                ];
 
                 // Set success message
                 $message = 'Item added to compare list successfully.';
@@ -61,14 +61,14 @@ class CartManagement {
         // Return the count of items in the cart along with the message
         return [
             'cart_count' => count($cart_items),
-            'message' => $message
+            'message' => $message,
         ];
     }
 
-
-
-    public static function getTotalItemsInCart(){
+    public static function getTotalItemsInCart()
+    {
         $cart_items = Session::get('cart_items', []);
+
         return count($cart_items);
     }
 
@@ -94,17 +94,20 @@ class CartManagement {
     }
 
     // Clear all cart items
-    public static function clearCartItems() {
+    public static function clearCartItems()
+    {
         Session::forget('cart_items');
     }
 
     // Get all cart items
-    public static function getCartItems() {
-        return Session::get('cart_items', []);
+    public static function getCartItems()
+    {
+        return array_map(function (array $item): array {
+            if (isset($item['combination'])) {
+                $item['combination'] = Productcombination::formatCombinationName($item['combination']);
+            }
+
+            return $item;
+        }, Session::get('cart_items', []));
     }
-
-    
-
-    
 }
-

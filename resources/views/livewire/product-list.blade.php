@@ -68,7 +68,7 @@
                                                <div class="services-one1__single">
                                                     <div class="services-one1__img">
                                                          @foreach($product->combinations as $combination)
-                                                            <a href="#" class="ohm-btn">{{ $combination->name }}</a>
+                                                            <a href="#" class="ohm-btn">{{ $combination->display_name }}</a>
                                                             @endforeach
                                                         <div class="thumbnail">
                                                             @if($product->productimages->first())
@@ -124,7 +124,7 @@
                                                                 @foreach($product->combinations as $combination)
                                                                 <li wire:click.prevent="addTocompare({{ $product->id }},{{ $combination->id }})">
                                                                     <a class="dropdown-item" href="javascript:void(0)">
-                                                                        {{ $combination->name }}
+                                                                        {{ $combination->display_name }}
                                                                     </a>
                                                                 </li>
                                                                 @endforeach

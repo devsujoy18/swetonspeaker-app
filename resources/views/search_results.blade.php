@@ -6,7 +6,7 @@
                     <h2>Search</h2>
                     
                     <ul class="thm-breadcrumb list-unstyled">
-                        <li><a href="#">Home</a></li>
+                        <li><a href="{{ route('home') }}">Home</a></li>
                         <li><span>//</span></li>
                         <li>Search</li>
                     </ul>
@@ -25,7 +25,7 @@
                                 <div class="col-xl-12">
                                     <div class="product__showing-result">
                                         <div class="product__showing-text-box">
-                                            <p class="product__showing-text">Showing {{ count($products) }} results</p>
+                                            <p class="product__showing-text">Showing {{ $products->count() }} results</p>
                                         </div>
                                         <div class="product__showing-sort">
                                             <div class="select-box">
@@ -44,38 +44,36 @@
                                         <p>No products found.</p>
                                     @else
                                         @foreach($products as $product)
+                                            @php
+                                                $category = $product->category;
+                                                $firstImage = $product->productimages->first();
+                                                $firstCombination = $product->combinations->first();
+                                                $type = $category->type_id == 1 ? 'pro-loudspeaker' : 'home-loudspeaker';
+                                                $productUrl = route('product.public.details', [
+                                                    'type' => $type,
+                                                    'category' => $category->slug,
+                                                    'slug' => $product->slug,
+                                                ]);
+                                            @endphp
                                             <div class="item col-xl-6 col-lg-6 col-md-6">
                                                 <section class="bdr-out">
                                                <div class="services-one1__single">
                                                     <div class="services-one1__img">
                                                         <div class="thumbnail">
-                                                            @if($product->productimages->first())
-                                                                @php
-                                                                    $productimg = $product->productimages->first();
-                                                                @endphp
-                                                               <img src="{{ url('/') }}/uploads/{{ $productimg->path }}" alt="{{ $product->name }}"> 
+                                                            @if($firstImage)
+                                                               <img src="{{ url('/') }}/uploads/{{ $firstImage->path }}" alt="{{ $product->name }}" loading="lazy" decoding="async"> 
                                                             @endif
                                                         </div>
                                                     </div>
                                                     
-                                                        @php
-                                                            $type = $product->category->type_id == 1 ? "pro-loudspeaker" : "home-loudspeaker";
-                                                        @endphp
                                                         <div class="services-one1__content">
-                                                        <h3 class="services-one__title"><a href="{{ route('product.public.details', [ 
-                                                            'type' => $type, 
-                                                            'category' => $product->category->slug,
-                                                            'slug' => $product->slug
-                                                            ] )}}">{{ $product->name }}</a></h3>
+                                                        <h3 class="services-one__title"><a href="{{ $productUrl }}">{{ $product->name }}</a></h3>
                                                         <div class="hm-keyft">
-                                                             @if($product->combinations->first())
-                                                                @php
-                                                                    $firstCombination = $product->combinations->first();
-                                                                @endphp
+                                                             @if($firstCombination)
                                                                 @if($firstCombination->productkeyfeatures)
                                                                 @foreach($firstCombination->productkeyfeatures as $keyfeature)
                                                                     <p>
-                                                                        <strong>{{ $keyfeature->keyfeature->name }} :</strong><br>
+                                                                        <strong>{{ $keyfeature->keyfeature?->name }} :</strong><br>
                                                                         {{ $keyfeature->value }}
                                                                     </p>
                                                                 @endforeach
@@ -98,7 +96,7 @@
                                                                 @foreach($product->combinations as $combination)
                                                                 <li wire:click.prevent="addTocompare({{ $product->id }},{{ $combination->id }})">
                                                                     <a class="dropdown-item" href="javascript:void(0)">
-                                                                        {{ $combination->name }}
+                                                                        {{ $combination->display_name }}
                                                                     </a>
                                                                 </li>
                                                                 @endforeach
@@ -110,14 +108,10 @@
                                                             
                                                         </div>
                                                         <span class="fl-right flo-mob-n1">
-                                                             @foreach($product->combinations as $combination)
-                                                            <a href="#" class="ohm-btn">{{ $combination->name }}</a>
+                                                            @foreach($product->combinations as $combination)
+                                                            <a href="#" class="ohm-btn">{{ $combination->display_name }}</a>
                                                             @endforeach
-                                                            <a href="{{ route('product.public.details', [ 
-                                                            'type' => $type, 
-                                                            'category' => $product->category->slug,
-                                                            'slug' => $product->slug
-                                                            ] )}}" class="thm-btn in-read">Read More</a>
+                                                            <a href="{{ $productUrl }}" class="thm-btn in-read">Read More</a>
                                                         </span>
                                                         
                                                     </div>
@@ -130,6 +124,11 @@
                                     @endif
                                 </div>
                             </div>
+                            @if($products->hasPages())
+                                <div class="mt-4">
+                                    {{ $products->links('pagination::simple-bootstrap-5') }}
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

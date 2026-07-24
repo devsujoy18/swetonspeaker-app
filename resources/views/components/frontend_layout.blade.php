@@ -116,38 +116,6 @@
 
     <div class="search-popup">
         <div class="search-popup__overlay search-toggler"></div>
-        <!-- /.search-popup__overlay -->
-        <div class="search-popup__content">
-            <form action="{{ route('search') }}">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="billing_input_box">
-                            <div class="select-box">
-                                <select class="wide">
-                                    <option data-display="Select a country">Select Speaker Categories</option>
-                                    <option value="1">Home Speaker</option>
-                                    <option value="2">Pro Speaker</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <label for="search" class="sr-only">search here</label><!-- /.sr-only -->
-                        <input type="text" id="search" placeholder="Product Name / Size / Wattage" />
-                        <button type="submit" aria-label="search submit" class="thm-btn">
-                            <i class="icon-search-interface-symbol"></i>
-                        </button>
-                    </div>
-                </div>
-                
-            </form>
-        </div>
-        <!-- /.search-popup__content -->
-    </div>
-    <!-- /.search-popup -->
-    
-    <div class="search-popup">
-        <div class="search-popup__overlay search-toggler"></div>
         <div class="search-popup__content">
             <form action="{{ route('search') }}" method="GET">
                 <div class="row">
@@ -155,7 +123,7 @@
                         <div class="billing_input_box">
                             <div class="select-box">
                                 <select class="wide" name="category">
-                                    <option data-display="Select a category">Select Speaker Categories</option>
+                                    <option value="" data-display="Select a category">Select Speaker Categories</option>
                                     <option value="pro-loudspeaker" {{ request('category') == 'pro-loudspeaker' ? 'selected' : '' }}>Pro Speaker</option>
                                     <option value="home-loudspeaker" {{ request('category') == 'home-loudspeaker' ? 'selected' : '' }}>Home Speaker</option>
                                 </select>
@@ -163,8 +131,8 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-6">
-                        <label for="search" class="sr-only">search here</label>
-                        <input type="text" id="search" name="product_name" placeholder="Product Name / Size / Wattage" value="{{ request('product_name') }}"/>
+                        <label for="header-search" class="sr-only">search here</label>
+                        <input type="text" id="header-search" name="product_name" placeholder="Product Name / Size / Wattage" value="{{ request('product_name') }}"/>
                         <button type="submit" aria-label="search submit" class="thm-btn">
                             <i class="icon-search-interface-symbol"></i> <span class="d-block d-md-none ml-2">Search</span>
                         </button>

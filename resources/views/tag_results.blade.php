@@ -103,7 +103,7 @@
                                                                 @foreach($product->combinations as $combination)
                                                                 <li wire:click.prevent="addTocompare({{ $product->id }},{{ $combination->id }})">
                                                                     <a class="dropdown-item" href="javascript:void(0)">
-                                                                        {{ $combination->name }}
+                                                                        {{ $combination->display_name }}
                                                                     </a>
                                                                 </li>
                                                                 @endforeach
@@ -116,7 +116,7 @@
                                                         </div>
                                                         <span class="fl-right flo-mob-n1">
                                                              @foreach($product->combinations as $combination)
-                                                            <a href="#" class="ohm-btn">{{ $combination->name }}</a>
+                                                            <a href="#" class="ohm-btn">{{ $combination->display_name }}</a>
                                                             @endforeach
                                                             <a href="{{ route('product.public.details', [ 
                                                             'type' => $type, 
