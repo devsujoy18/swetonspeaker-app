@@ -45,6 +45,16 @@ class SearchPageTest extends TestCase
         $response->assertDontSee("\u{00CE}\u{00A9}");
     }
 
+    public function test_category_product_list_requires_category_to_belong_to_requested_type(): void
+    {
+        $response = $this->get(route('category.products', [
+            'type' => 'home-loudspeaker',
+            'slug' => 'it-series',
+        ]));
+
+        $response->assertStatus(404);
+    }
+
     public function test_product_detail_renders_normalized_ohm_text(): void
     {
         $ohm = html_entity_decode('&Omega;', ENT_QUOTES, 'UTF-8');
@@ -58,5 +68,16 @@ class SearchPageTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('8 '.$ohm);
         $response->assertDontSee("\u{00CE}\u{00A9}");
+    }
+
+    public function test_product_detail_requires_category_to_belong_to_requested_type(): void
+    {
+        $response = $this->get(route('product.public.details', [
+            'type' => 'home-loudspeaker',
+            'category' => 'it-series',
+            'slug' => '8-it-200-mid',
+        ]));
+
+        $response->assertStatus(404);
     }
 }

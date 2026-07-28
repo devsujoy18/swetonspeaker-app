@@ -3,14 +3,56 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title> Sweton -Transducers Since 1982 :: Pro Loudspeakers | Home Loudspeakers </title>
+    @php
+        use App\Models\SeoMeta;
+
+        $fallbackTitle = 'Sweton -Transducers Since 1982 :: Pro Loudspeakers | Home Loudspeakers';
+        $fallbackKeywords = 'Speakers,Loudspeakers,PA Speaker,Woofer,Tweeter High Frequen(H F),Full Range Speaker,Car Speaker,Speaker Manufacturer in India,Audio Speaker Manufacturer,Audio Speaker Exporter in India,Raw Speaker in India,Cinema Speakers';
+        $fallbackDescription = 'SWETON - is an Indian Brand having an in-house product range of more than forty varieties of precision transducers for Professional sound industries(Pro Audio) and more than forty varieties of transduces for Home Series(Home Audio). Audio loudspeaker manufacturer since 1982';
+        $route = request()->route();
+        $routeName = $route?->getName();
+        $routeSlug = $route?->parameter('slug');
+        $currentPath = request()->is('/') ? '/' : '/'.request()->path();
+        $seoQuery = SeoMeta::active()->forType(SeoMeta::TypeMainSite);
+        $seoMeta = null;
+
+        if ($routeName === 'product.public.details' && is_string($routeSlug)) {
+            $seoMeta = (clone $seoQuery)->forPageType(SeoMeta::PageTypeProduct)->forSlug($routeSlug)->latest()->first();
+        }
+
+        if (! $seoMeta && $routeName === 'category.products' && is_string($routeSlug)) {
+            $seoMeta = (clone $seoQuery)->forPageType(SeoMeta::PageTypeCategory)->forSlug($routeSlug)->latest()->first();
+        }
+
+        if (! $seoMeta) {
+            $seoMeta = (clone $seoQuery)->forPath($currentPath)->latest()->first();
+        }
+
+        if (! $seoMeta && $routeName) {
+            $seoMeta = (clone $seoQuery)->forRoute($routeName)->latest()->first();
+        }
+
+        if (! $seoMeta) {
+            $seoMeta = (clone $seoQuery)->forPageType(SeoMeta::PageTypeDefault)->latest()->first();
+        }
+
+        $seoTitle = $seoMeta?->title ?: $fallbackTitle;
+        $seoKeywords = $seoMeta?->keywords ?: $fallbackKeywords;
+        $seoDescription = $seoMeta?->description ?: $fallbackDescription;
+        $seoRobots = $seoMeta?->robots ?: 'index, follow';
+    @endphp
+    <title>{{ $seoTitle }}</title>
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('public_assets/images/favicons/apple-touch-icon.png') }}" />
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('public_assets/images/favicons/favicon-32x32.png') }}" />
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('public_assets/images/favicons/favicon-16x16.png') }}" />
     <!-- <link rel="manifest" href="{{ asset('public_assets/images/favicons/site.webmanifest') }}" /> -->
-   <meta name="title" content="Sweton -Transducers Since 1982 :: Pro Loudspeakers | Home Loudspeakers" />
-  <meta name="keywords" content="Speakers,Loudspeakers,PA Speaker,Woofer,Tweeter High Frequen(H F),Full Range Speaker,Car Speaker,Speaker Manufacturer in India,Audio Speaker Manufacturer,Audio Speaker Exporter in India,Raw Speaker in India,Cinema Speakers" />
-  <meta name="description" content="SWETON – is an Indian Brand having an in-house product range of more than forty varieties of precision transducers for Professional sound industries(Pro Audio) and more than forty varieties of transduces for Home Series(Home Audio). Audio loudspeaker manufacturer since 1982" />
+   <meta name="title" content="{{ $seoTitle }}" />
+  <meta name="keywords" content="{{ $seoKeywords }}" />
+  <meta name="description" content="{{ $seoDescription }}" />
+  <meta name="robots" content="{{ $seoRobots }}" />
+  @if($seoMeta?->canonical_url)
+  <link rel="canonical" href="{{ $seoMeta->canonical_url }}" />
+  @endif
     <!-- fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>

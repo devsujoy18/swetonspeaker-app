@@ -89,6 +89,13 @@
                   <p>Product</p>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a href="{{ route('seo-meta.index') }}" class="nav-link {{ request()->is('seo-meta*') ? 'active' : '' }}">
+                  <i class="nav-icon fas fa-search"></i>
+                  <p>SEO Meta</p>
+                </a>
+            </li>
             
             <li class="nav-item">
                 <a href="{{ route('product.enquiry.list') }}" class="nav-link {{ request()->is('all-enquiries') ? 'active' : '' }}">

@@ -738,11 +738,16 @@ class ProductController extends Controller
      **/
     public function category_products($type, $slug)
     {
-        if (empty($type) || ($type != 'pro-loudspeaker' && $type != 'home-loudspeaker')) {
+        $typeId = $this->categoryTypeId($type);
+
+        if (! $typeId) {
             abort(404, 'The type does not exist.');
         }
-        // Check slug exist in the category
-        $categoryExists = Category::where('slug', $slug)->exists();
+
+        $categoryExists = Category::where('slug', $slug)
+            ->where('type_id', $typeId)
+            ->exists();
+
         if (! $categoryExists) {
             abort(404, 'The specified category slug does not exist.');
         }
@@ -755,18 +760,19 @@ class ProductController extends Controller
      **/
     public function product_public_details($type, $category_slug, $slug)
     {
-        // Check type exist
-        if (empty($type) || ! in_array($type, ['pro-loudspeaker', 'home-loudspeaker'])) {
+        $typeId = $this->categoryTypeId($type);
+
+        if (! $typeId) {
             abort(404, 'The type does not exist.');
         }
 
-        // Check slug exist in the category
-        $categoryExists = Category::where('slug', $category_slug)->exists();
-        if (! $categoryExists) {
+        $category = Category::where('slug', $category_slug)
+            ->where('type_id', $typeId)
+            ->first();
+
+        if (! $category) {
             abort(404, 'The specified category does not exist.');
         }
-
-        $category = Category::where('slug', $category_slug)->first();
 
         $product = Product::with([
             'category',
@@ -794,7 +800,10 @@ class ProductController extends Controller
                 $query->where('status', 0)
                     ->orderBy('order_no');
             },
-        ])->where('slug', $slug)->first();
+        ])
+            ->where('slug', $slug)
+            ->where('category_id', $category->id)
+            ->first();
 
         if (! $product) {
             abort(404, 'The specified product does not exist.');
@@ -802,6 +811,15 @@ class ProductController extends Controller
 
         // Check product exist or not and get specific product details
         return view('product.product_public_details', compact('product', 'type', 'category'));
+    }
+
+    private function categoryTypeId(string $type): ?int
+    {
+        return match ($type) {
+            'pro-loudspeaker' => 1,
+            'home-loudspeaker' => 2,
+            default => null,
+        };
     }
 
     /**
