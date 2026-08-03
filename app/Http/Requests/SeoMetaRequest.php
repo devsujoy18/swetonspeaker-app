@@ -28,6 +28,7 @@ class SeoMetaRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'keywords' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
+            'page_description' => ['nullable', 'string'],
             'canonical_url' => ['nullable', 'url', 'max:255'],
             'robots' => ['required', 'string', 'max:255'],
             'is_active' => ['boolean'],

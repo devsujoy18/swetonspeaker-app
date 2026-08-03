@@ -166,6 +166,7 @@ class SeoMetaController extends Controller
             'title',
             'keywords',
             'description',
+            'page_description',
             'canonical_url',
             'robots',
             'is_active',

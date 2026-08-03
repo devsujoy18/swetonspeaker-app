@@ -22,6 +22,7 @@ use App\Models\Productreview;
 use App\Models\Productspecification;
 use App\Models\Producttsparameter;
 use App\Models\Reconkit;
+use App\Models\SeoMeta;
 use App\Models\Specification;
 use App\Models\Tsparameter;
 use Illuminate\Http\Request;
@@ -744,15 +745,24 @@ class ProductController extends Controller
             abort(404, 'The type does not exist.');
         }
 
-        $categoryExists = Category::where('slug', $slug)
+        $category = Category::where('slug', $slug)
             ->where('type_id', $typeId)
-            ->exists();
+            ->first();
 
-        if (! $categoryExists) {
+        if (! $category) {
             abort(404, 'The specified category slug does not exist.');
         }
 
-        return view('product.category_wise_product_list', compact('slug'));
+        $pageDescription = SeoMeta::active()
+            ->forType(SeoMeta::TypeMainSite)
+            ->forPageType(SeoMeta::PageTypeCategory)
+            ->forSlug($slug)
+            ->value('page_description');
+
+        return view('product.category_wise_product_list', [
+            'slug' => $slug,
+            'pageDescription' => $pageDescription,
+        ]);
     }
 
     /**

@@ -27,6 +27,17 @@
                 </div>
             </div>
     </section>
+    @if(filled($pageDescription ?? null))
+        <section class="product" style="padding-bottom: 0;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12">
+                        {!! $pageDescription !!}
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
     <!--Product Start-->
         <section class="product">
             <div class="container">

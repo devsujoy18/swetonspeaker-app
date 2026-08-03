@@ -54,6 +54,14 @@
     @endif
 </div>
 
+<div class="form-group">
+    <label>Page Description</label>
+    <textarea name="page_description" class="form-control summernote-seo" rows="6">{{ old('page_description', $seoMeta->page_description ?? '') }}</textarea>
+    @if($errors->has('page_description'))
+        <x-validation_error class="text-danger" :error="$errors->first('page_description')"></x-validation_error>
+    @endif
+</div>
+
 <div class="row">
     <div class="col-md-6">
         <div class="form-group">

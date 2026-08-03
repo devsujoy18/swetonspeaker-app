@@ -142,6 +142,7 @@
     <x-slot:scripts>
         <link rel="stylesheet" href="//cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
         <script src="//cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+        <script src="{{ asset('admin_assets/plugins/summernote/summernote-bs4.min.js') }}"></script>
         <script>
             const seoPageOptions = @json($pageOptions);
 
@@ -178,6 +179,18 @@
 
                     pageSelect.addEventListener('change', function () {
                         pageSelect.setAttribute('data-selected', pageSelect.value);
+                    });
+                });
+
+                $('.seo-meta-modal').on('shown.bs.modal', function () {
+                    $(this).find('.summernote-seo').each(function () {
+                        if ($(this).next('.note-editor').length) {
+                            return;
+                        }
+
+                        $(this).summernote({
+                            height: 180,
+                        });
                     });
                 });
             });

@@ -30,6 +30,7 @@ class SeoMeta extends Model
         'title',
         'keywords',
         'description',
+        'page_description',
         'canonical_url',
         'robots',
         'is_active',
