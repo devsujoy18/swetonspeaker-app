@@ -96,6 +96,13 @@
                   <p>SEO Meta</p>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a href="{{ route('page-faq.index') }}" class="nav-link {{ request()->is('page-faq*') ? 'active' : '' }}">
+                  <i class="nav-icon fas fa-question-circle"></i>
+                  <p>Page FAQ</p>
+                </a>
+            </li>
             
             <li class="nav-item">
                 <a href="{{ route('product.enquiry.list') }}" class="nav-link {{ request()->is('all-enquiries') ? 'active' : '' }}">

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     @php
+        use App\Models\PageFaq;
         use App\Models\SeoMeta;
 
         $fallbackTitle = 'Sweton -Transducers Since 1982 :: Pro Loudspeakers | Home Loudspeakers';
@@ -40,6 +41,25 @@
         $seoKeywords = $seoMeta?->keywords ?: $fallbackKeywords;
         $seoDescription = $seoMeta?->description ?: $fallbackDescription;
         $seoRobots = $seoMeta?->robots ?: 'index, follow';
+
+        $pageFaqQuery = PageFaq::active()->forType(PageFaq::TypeMainSite)->ordered();
+        $pageFaqs = collect();
+
+        if ($routeName === 'product.public.details' && is_string($routeSlug)) {
+            $pageFaqs = (clone $pageFaqQuery)->forPageType(PageFaq::PageTypeProduct)->forSlug($routeSlug)->get();
+        }
+
+        if ($pageFaqs->isEmpty() && $routeName === 'category.products' && is_string($routeSlug)) {
+            $pageFaqs = (clone $pageFaqQuery)->forPageType(PageFaq::PageTypeCategory)->forSlug($routeSlug)->get();
+        }
+
+        if ($pageFaqs->isEmpty()) {
+            $pageFaqs = (clone $pageFaqQuery)->forPath($currentPath)->get();
+        }
+
+        if ($pageFaqs->isEmpty() && $routeName) {
+            $pageFaqs = (clone $pageFaqQuery)->forRoute($routeName)->get();
+        }
     @endphp
     <title>{{ $seoTitle }}</title>
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('public_assets/images/favicons/apple-touch-icon.png') }}" />
@@ -149,6 +169,10 @@
         </div><!-- /.stricky-header -->
 
         {{ $slot }}
+
+        @if($pageFaqs->isNotEmpty())
+            <x-frontend_page_faqs :page-faqs="$pageFaqs" />
+        @endif
 
        <x-frontend_footer></x-frontend_footer>
 

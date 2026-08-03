@@ -4,6 +4,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\KeyfeatureController;
 use App\Http\Controllers\MountinginfoController;
+use App\Http\Controllers\PageFaqController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReconkitController;
 use App\Http\Controllers\SearchController;
@@ -339,6 +340,10 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('seo-meta', SeoMetaController::class)
         ->parameters(['seo-meta' => 'seoMeta'])
+        ->except(['create', 'show', 'edit']);
+
+    Route::resource('page-faq', PageFaqController::class)
+        ->parameters(['page-faq' => 'pageFaq'])
         ->except(['create', 'show', 'edit']);
 
     Route::get('product/{id}/image', [ProductController::class, 'upload_image'])->name('product.image');
