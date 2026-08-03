@@ -58,7 +58,10 @@
         }
 
         if ($pageFaqs->isEmpty() && $routeName) {
-            $pageFaqs = (clone $pageFaqQuery)->forRoute($routeName)->get();
+            $pageFaqs = (clone $pageFaqQuery)
+                ->forPageType(PageFaq::PageTypePage)
+                ->forRoute($routeName)
+                ->get();
         }
     @endphp
     <title>{{ $seoTitle }}</title>
