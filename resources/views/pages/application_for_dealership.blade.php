@@ -1,4 +1,5 @@
 <x-frontend_layout>
+    @php($recaptchaEnabled = ! app()->environment(['local', 'testing']))
     
      <!--Page Header Start-->
         <section class="page-header">
@@ -30,9 +31,6 @@
                             <h3 class="contact-page__title">Application</h3>
                             @if($message = Session::get('success'))
                     	    <x-alert type="success" :message="$message"></x-alert>
-                    	    @endif
-                    	    @if($message = Session::get('recaptcha'))
-                    	    <x-alert type="danger" :message="$message"></x-alert>
                     	    @endif
                             <form action="{{ route('application.dealership.store') }}" class="contact-page__form" id="contactusForm" method="POST">
                                 @csrf
@@ -89,13 +87,22 @@
                                             <span style="color:red">{{ $errors->first('speaker') }}</span>
                                             @endif
                                             
-                                    <input type="hidden" name="recaptcha_token" id="recaptchaToken">
+                                    <input type="hidden" name="recaptcha_token" id="recaptchaToken" value="{{ $recaptchaEnabled ? '' : 'local-development' }}">
+                                    @error('recaptcha_token')
+                                        <span class="d-block text-danger mb-3">Please verify that you are not a robot and try again.</span>
+                                    @enderror
+                                    @error('recaptcha')
+                                        <span class="d-block text-danger mb-3">{{ $message }}</span>
+                                    @enderror
+                                    <span id="recaptchaClientError" class="d-none text-danger mb-3">
+                                        Unable to verify reCAPTCHA. Please check your connection and try again.
+                                    </span>
                                     <div class="col-xl-12">
                                         <div style="margin: 2em 0;">
                                         <p>Note:</p>
                                         <ul class="conlist">
                                             <li>
-                                            - You will be redirected to your Whatsapp and you are requested to send filled up form details via whatsapp also.</li>
+                                            - After submitting, continue to WhatsApp from the confirmation page and send your filled form details.</li>
                                             <li>- We will reply you via Whatsapp only.</li>
                                         </ul>
                                     </div>
@@ -107,7 +114,7 @@
                                     
                                     <div class="col-xl-12">
                                         <div class="contact-page__btn-box">
-                                            <button type="submit" class="thm-btn contact-page__btn">Send Message</button>
+                                            <button type="submit" id="submitBtn" class="thm-btn contact-page__btn">Send Message</button>
                                         </div>
                                     </div>
                                 </div>
@@ -119,18 +126,53 @@
         </section>
         <!--Contact Page End-->
         
+        @if($recaptchaEnabled)
         <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
-    	<script>
-    		grecaptcha.ready(function () {
-    		    document.getElementById('contactusForm').addEventListener('submit', function(event) {
-    		        event.preventDefault();
-    		        grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', { action: 'submit' }).then(function(token) {
-    		            document.getElementById('recaptchaToken').value = token;
-    		            event.target.submit();
-    		        });
-    		    });
-    		});
-    	</script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.getElementById('contactusForm');
+                const submitButton = document.getElementById('submitBtn');
+                const recaptchaToken = document.getElementById('recaptchaToken');
+                const recaptchaClientError = document.getElementById('recaptchaClientError');
+                let submitting = false;
+
+                function resetSubmission() {
+                    submitting = false;
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Send Message';
+                    recaptchaClientError.classList.remove('d-none');
+                }
+
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    if (submitting) {
+                        return;
+                    }
+
+                    submitting = true;
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Please Wait...';
+                    recaptchaClientError.classList.add('d-none');
+
+                    if (typeof window.grecaptcha === 'undefined') {
+                        resetSubmission();
+
+                        return;
+                    }
+
+                    window.grecaptcha.ready(function () {
+                        window.grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', {
+                            action: 'submit'
+                        }).then(function (token) {
+                            recaptchaToken.value = token;
+                            form.submit();
+                        }).catch(resetSubmission);
+                    });
+                });
+            });
+        </script>
+        @endif
 
     
 </x-frontend_layout>

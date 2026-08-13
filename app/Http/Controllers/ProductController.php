@@ -1097,15 +1097,17 @@ class ProductController extends Controller
             'speaker.*.in' => 'The selected speaker type is invalid.',
         ]);
 
-        $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => config('services.recaptcha.secret_key'),
-            'response' => $request->recaptcha_token,
-        ]);
+        if (! app()->environment(['local', 'testing'])) {
+            $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => config('services.recaptcha.secret_key'),
+                'response' => $request->recaptcha_token,
+            ]);
 
-        $recaptchaData = $recaptchaResponse->json();
+            $recaptchaData = $recaptchaResponse->json();
 
-        if (! $recaptchaData['success'] || $recaptchaData['score'] < 0.5) {
-            return back()->withErrors(['recaptcha' => 'reCAPTCHA verification failed. Please try again.']);
+            if (! $recaptchaResponse->successful() || ! ($recaptchaData['success'] ?? false) || ($recaptchaData['score'] ?? 0) < 0.5) {
+                return back()->withErrors(['recaptcha' => 'reCAPTCHA verification failed. Please try again.']);
+            }
         }
 
         $applicationDealership = new Applicatiodealership;
@@ -1129,9 +1131,7 @@ class ProductController extends Controller
 
         $redirect_link = 'https://wa.me/917044411800?text='.urlencode($msg);
 
-        return redirect()->away($redirect_link);
-
-        // return redirect()->route('application.dealership')->with('success', 'Your requirement added successfully');
+        return redirect()->route('application.dealership.success')->with('whatsapp_link', $redirect_link);
     }
 
     /**

@@ -254,6 +254,13 @@ Route::get('/application-for-dealership', function () {
     return view('pages.application_for_dealership');
 })->name('application.dealership');
 Route::post('application-for-dealership', [ProductController::class, 'application_for_dealership'])->name('application.dealership.store');
+Route::get('/application-for-dealership/success', function () {
+    if (! session()->has('whatsapp_link')) {
+        return redirect()->route('application.dealership');
+    }
+
+    return view('pages.application_for_dealership_success');
+})->name('application.dealership.success');
 
 Route::get('/contact-us', function () {
     return view('pages.contact_us');
