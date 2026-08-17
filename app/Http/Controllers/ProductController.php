@@ -1207,9 +1207,7 @@ class ProductController extends Controller
 
         $redirect_link = 'https://wa.me/917044411800?text='.urlencode($msg);
 
-        return redirect()->away($redirect_link);
-
-        // return redirect()->route('contact.us')->with('success', 'Your message sent successfully');
+        return redirect()->route('contact.us.success')->with('whatsapp_link', $redirect_link);
     }
 
     /**

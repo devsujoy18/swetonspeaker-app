@@ -160,7 +160,7 @@
                                         <p>Note:</p>
                                         <ul class="conlist">
                                             <li>
-                                            - You will be redirected to your Whatsapp and you are requested to send filled up form details via whatsapp also.</li>
+                                            - After submitting, continue to WhatsApp from the confirmation page and send your filled form details.</li>
                                             <li>- We will reply you via Whatsapp only.</li>
                                         </ul>
                                     </div>

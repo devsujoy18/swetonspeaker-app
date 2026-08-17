@@ -266,6 +266,13 @@ Route::get('/contact-us', function () {
     return view('pages.contact_us');
 })->name('contact.us');
 Route::post('/contact-us', [ProductController::class, 'contact_us_store'])->name('contact.us.store');
+Route::get('/contact-us/success', function () {
+    if (! session()->has('whatsapp_link')) {
+        return redirect()->route('contact.us');
+    }
+
+    return view('pages.contact_us_success');
+})->name('contact.us.success');
 
 Route::get('login', [UserController::class, 'index'])->name('login');
 Route::post('login', [UserController::class, 'process_login']);
