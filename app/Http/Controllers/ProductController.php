@@ -17,18 +17,24 @@ use App\Models\Productenquiry;
 use App\Models\Productimage;
 use App\Models\Productkeyfeature;
 use App\Models\Productmountinginfo;
+use App\Models\ProductQrCode;
 use App\Models\Productreconkit;
 use App\Models\Productreview;
 use App\Models\Productspecification;
 use App\Models\Producttsparameter;
+use App\Models\QrCodeScan;
 use App\Models\Reconkit;
 use App\Models\SeoMeta;
 use App\Models\Specification;
 use App\Models\Tsparameter;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 
@@ -821,6 +827,84 @@ class ProductController extends Controller
 
         // Check product exist or not and get specific product details
         return view('product.product_public_details', compact('product', 'type', 'category'));
+    }
+
+    public function qr_code_product(ProductQrCode $qrCode, Request $request)
+    {
+        $qrCode->load('product.category');
+        $product = $qrCode->product;
+        $type = match ($product->category->type_id) {
+            1 => 'pro-loudspeaker',
+            2 => 'home-loudspeaker',
+            default => abort(404, 'The product category type does not exist.'),
+        };
+
+        $scan = $qrCode->scans()->create([
+            'product_id' => $product->id,
+            'source' => $qrCode->source,
+            'ip_address' => $request->ip(),
+            'device' => $this->detectQrScanDevice($request->userAgent()),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return view('product.qr_code_scan', [
+            'locationUrl' => route('product.qr.location', ['qrCodeScan' => $scan]),
+            'redirectUrl' => route('product.public.details', [
+                'type' => $type,
+                'category' => $product->category->slug,
+                'slug' => $product->slug,
+                's' => $qrCode->source,
+            ]),
+        ]);
+    }
+
+    public function download_qr_code(ProductQrCode $qrCode)
+    {
+        $png = (new PngWriter)->write(
+            QrCode::create($qrCode->url)
+                ->setSize(800)
+                ->setMargin(20),
+        )->getString();
+
+        return response()->streamDownload(
+            fn () => print $png,
+            'product-qr-'.$qrCode->id.'-'.$qrCode->source.'.png',
+            ['Content-Type' => 'image/png'],
+        );
+    }
+
+    public function record_qr_code_location(Request $request, QrCodeScan $qrCodeScan): JsonResponse
+    {
+        $validated = $request->validate([
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'accuracy' => ['nullable', 'numeric', 'min:0', 'max:100000'],
+        ]);
+
+        $qrCodeScan->update([
+            'latitude' => round((float) $validated['latitude'], 2),
+            'longitude' => round((float) $validated['longitude'], 2),
+            'location_accuracy' => isset($validated['accuracy']) ? (int) round($validated['accuracy']) : null,
+        ]);
+
+        return response()->json(status: 204);
+    }
+
+    private function detectQrScanDevice(?string $userAgent): string
+    {
+        if ($userAgent === null || $userAgent === '') {
+            return 'Unknown';
+        }
+
+        if (Str::contains($userAgent, ['iPad', 'Tablet'])) {
+            return 'Tablet';
+        }
+
+        if (Str::contains($userAgent, ['Android', 'iPhone', 'iPod', 'Mobile'])) {
+            return 'Mobile';
+        }
+
+        return 'Desktop';
     }
 
     private function categoryTypeId(string $type): ?int

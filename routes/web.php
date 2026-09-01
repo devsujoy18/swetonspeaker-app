@@ -236,6 +236,8 @@ Route::get('/tags', [TagController::class, 'search'])->name('tag.search');
 Route::get('speaker/{type}', [CategoryController::class, 'all_category'])->name('category.list');
 Route::get('speaker/{type}/{slug}', [ProductController::class, 'category_products'])->name('category.products');
 Route::get('speaker/{type}/{category}/{slug}', [ProductController::class, 'product_public_details'])->name('product.public.details');
+Route::get('p/{qrCode:public_token}', [ProductController::class, 'qr_code_product'])->name('product.qr.show');
+Route::post('p/scan/{qrCodeScan:scan_token}/location', [ProductController::class, 'record_qr_code_location'])->name('product.qr.location');
 Route::get('compare', [ProductController::class, 'product_compare'])->name('product.compare');
 
 Route::get('/product-enquiry', function () {
@@ -351,6 +353,7 @@ Route::group(['middleware' => 'auth'], function () {
     /* Product routes */
     Route::resource('product', ProductController::class);
     Route::get('product/status/{id}', [ProductController::class, 'change_status'])->name('product.status');
+    Route::get('product/qr-code/{qrCode}/download', [ProductController::class, 'download_qr_code'])->name('product.qr.download');
 
     Route::resource('seo-meta', SeoMetaController::class)
         ->parameters(['seo-meta' => 'seoMeta'])
