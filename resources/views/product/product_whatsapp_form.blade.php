@@ -22,7 +22,7 @@
     <section class="product-whatsapp-connect">
         <div class="container">
             <div class="product-whatsapp-connect__card">
-                <h3>Fill out this form to connect with us on <span>WhatsApp: 7044411800</span></h3>
+                <h3>Fill out this form to connect with us on <span>WhatsApp: 9073003001</span></h3>
 
                 <form action="{{ route('product.whatsapp.connect', ['type' => $type, 'category' => $category->slug, 'slug' => $product->slug]) }}" class="contact-page__form" method="POST">
                     @csrf

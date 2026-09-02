@@ -836,7 +836,7 @@ class ProductController extends Controller
             $validatedData['requirement'],
             $validatedData['person_type'],
         );
-        $redirect_link = 'https://wa.me/917044411800?text='.urlencode($msg);
+        $redirect_link = 'https://wa.me/919073003001?text='.urlencode($msg);
 
         return redirect()->away($redirect_link);
     }
