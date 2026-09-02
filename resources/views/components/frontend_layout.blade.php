@@ -111,6 +111,7 @@
     <link rel="stylesheet" href="{{ asset('public_assets/css/sweton3.css') }}" />
     <link rel="stylesheet" href="{{ asset('public_assets/css/sweton-responsive1.css') }}" />
     <link rel="stylesheet" href="{{ asset('public_assets/css/lightbox.min.css') }}" />
+    {{ $styles ?? '' }}
 </head>
 
 <body class="custom-cursor">

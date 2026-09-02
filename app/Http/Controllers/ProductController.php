@@ -29,7 +29,9 @@ use App\Models\Specification;
 use App\Models\Tsparameter;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -776,22 +778,9 @@ class ProductController extends Controller
      **/
     public function product_public_details($type, $category_slug, $slug)
     {
-        $typeId = $this->categoryTypeId($type);
+        [$category, $product] = $this->findPublicProduct($type, $category_slug, $slug);
 
-        if (! $typeId) {
-            abort(404, 'The type does not exist.');
-        }
-
-        $category = Category::where('slug', $category_slug)
-            ->where('type_id', $typeId)
-            ->first();
-
-        if (! $category) {
-            abort(404, 'The specified category does not exist.');
-        }
-
-        $product = Product::with([
-            'category',
+        $product->load([
             'productimages' => function ($query) {
                 $query->where('status', 0)
                     ->orderBy('order_no');
@@ -816,17 +805,40 @@ class ProductController extends Controller
                 $query->where('status', 0)
                     ->orderBy('order_no');
             },
-        ])
-            ->where('slug', $slug)
-            ->where('category_id', $category->id)
-            ->first();
+        ]);
 
-        if (! $product) {
-            abort(404, 'The specified product does not exist.');
-        }
-
-        // Check product exist or not and get specific product details
         return view('product.product_public_details', compact('product', 'type', 'category'));
+    }
+
+    public function product_whatsapp_form(string $type, string $category_slug, string $slug): View
+    {
+        [$category, $product] = $this->findPublicProduct($type, $category_slug, $slug);
+
+        return view('product.product_whatsapp_form', compact('category', 'product', 'type'));
+    }
+
+    public function product_whatsapp_connect(Request $request, string $type, string $category_slug, string $slug): RedirectResponse
+    {
+        [, $product] = $this->findPublicProduct($type, $category_slug, $slug);
+        $validatedData = $request->validate([
+            'requirement' => 'required|string|in:Complete cut sheet,Recommended volume & tuning,T/S parameters,DSP / crossover recommendations,Build cautions',
+            'person_type' => 'required|string|in:Box Maker,Dealer,Sound Engineer,Rental,OEM / Bulk',
+        ], [
+            'requirement.required' => 'Please select a requirement.',
+            'requirement.in' => 'Please select a valid requirement.',
+            'person_type.required' => 'Please select a person type.',
+            'person_type.in' => 'Please select a valid person type.',
+        ]);
+
+        $msg = sprintf(
+            "Model Name: %s\nRequirement: %s\nPerson Type: %s",
+            $product->name,
+            $validatedData['requirement'],
+            $validatedData['person_type'],
+        );
+        $redirect_link = 'https://wa.me/917044411800?text='.urlencode($msg);
+
+        return redirect()->away($redirect_link);
     }
 
     public function qr_code_product(ProductQrCode $qrCode, Request $request)
@@ -914,6 +926,38 @@ class ProductController extends Controller
             'home-loudspeaker' => 2,
             default => null,
         };
+    }
+
+    /**
+     * @return array{0: Category, 1: Product}
+     */
+    private function findPublicProduct(string $type, string $categorySlug, string $slug): array
+    {
+        $typeId = $this->categoryTypeId($type);
+
+        if (! $typeId) {
+            abort(404, 'The type does not exist.');
+        }
+
+        $category = Category::query()
+            ->where('slug', $categorySlug)
+            ->where('type_id', $typeId)
+            ->first();
+
+        if (! $category) {
+            abort(404, 'The specified category does not exist.');
+        }
+
+        $product = Product::query()
+            ->where('slug', $slug)
+            ->where('category_id', $category->id)
+            ->first();
+
+        if (! $product) {
+            abort(404, 'The specified product does not exist.');
+        }
+
+        return [$category, $product];
     }
 
     /**

@@ -1,4 +1,8 @@
 <x-frontend_layout>
+    <x-slot:styles>
+        <link rel="stylesheet" href="{{ asset('public_assets/css/product-whatsapp-connect.css') }}">
+    </x-slot:styles>
+
     <style>
         .item {
           height: auto;
@@ -165,7 +169,12 @@
                                 @endif
                             </ul>
                         </div>
-                        <a href="{{ route('product.enquiry') }}" class="thm-btn services-one__btn mt-5">Product Enquiry</a>
+                        <div class="product-details__actions mt-5">
+                            <a href="{{ route('product.whatsapp.form', ['type' => $type, 'category' => $category->slug, 'slug' => $product->slug]) }}" class="product-details__whatsapp-link" aria-label="Connect on WhatsApp for {{ $product->name }}">
+                                <img src="{{ asset('public_assets/images/whatsapp-connect-form.jpeg') }}" alt="Connect on WhatsApp">
+                            </a>
+                            <a href="{{ route('product.enquiry') }}" class="thm-btn services-one__btn">Product Enquiry</a>
+                        </div>
                         @if($product->is_sealable == 1 && !empty($product->buy_link))
                         <a href="{{ $product->buy_link }}" class="thm-btn services-one__btn mt-5" style="background: #303030;" target="_blank">Buy Now</a>
                         @endif
