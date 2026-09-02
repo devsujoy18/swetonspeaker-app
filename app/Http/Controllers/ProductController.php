@@ -872,6 +872,15 @@ class ProductController extends Controller
 
     public function download_qr_code(ProductQrCode $qrCode)
     {
+        $qrCode->loadMissing('product');
+        $productFileName = Str::of($qrCode->product->name)
+            ->replaceMatches('/[^A-Za-z0-9]+/', '')
+            ->toString();
+
+        if ($productFileName === '') {
+            $productFileName = 'product';
+        }
+
         $png = (new PngWriter)->write(
             QrCode::create($qrCode->url)
                 ->setSize(800)
@@ -880,7 +889,7 @@ class ProductController extends Controller
 
         return response()->streamDownload(
             fn () => print $png,
-            'product-qr-'.$qrCode->id.'-'.$qrCode->source.'.png',
+            'product-qr-'.$productFileName.'-'.$qrCode->source.'.png',
             ['Content-Type' => 'image/png'],
         );
     }

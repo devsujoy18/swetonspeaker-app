@@ -138,9 +138,9 @@
                         @if($product->drawing)
                         <a href="{{ url('/') }}/uploads/{{ $product->drawing }}" class="sidebarDownloadElem" target="_blank"><i class="fas fa-arrow-down"></i> Drawing</a>
                         @endif
-                        @if($product->datasheet)
+                        {{-- @if($product->datasheet)
                         <a href="{{ url('/') }}/uploads/{{ $product->datasheet }}" class="sidebarDownloadElem" target="_blank"><i class="fas fa-file-download"></i> Datasheet</a>
-                        @endif
+                        @endif --}}
                     </div>
                 </div>
                         <div class="product-details__top">

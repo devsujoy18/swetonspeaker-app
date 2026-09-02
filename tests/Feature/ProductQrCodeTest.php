@@ -81,6 +81,8 @@ class ProductQrCodeTest extends TestCase
     public function test_a_qr_code_can_be_downloaded_as_a_png_image(): void
     {
         $product = Product::query()->firstOrFail();
+        $product->name = '8 IT 200 MID';
+        $product->save();
         $qrCode = $product->qrCodes()->firstOrCreate(
             ['source' => ProductQrCode::SourceCat],
             ['url' => ''],
@@ -92,7 +94,7 @@ class ProductQrCodeTest extends TestCase
 
         $this->actingAs(User::factory()->create())
             ->get(route('product.qr.download', ['qrCode' => $qrCode]))
-            ->assertDownload('product-qr-'.$qrCode->id.'-'.$qrCode->source.'.png')
+            ->assertDownload('product-qr-8IT200MID-'.$qrCode->source.'.png')
             ->assertHeader('Content-Type', 'image/png');
     }
 }
