@@ -283,13 +283,14 @@ Route::post('login', [UserController::class, 'process_login']);
 
 Route::get('events-and-blogs', [BlogController::class, 'public_blog_list'])->name('public.blogs');
 Route::get('event-blog/{slug}', [BlogController::class, 'public_blog_details'])->name('public.blogdetails');
+Route::get('blogs', [BlogController::class, 'public_blogs_list'])->name('public.blog.index');
+Route::get('blog/{slug}', [BlogController::class, 'public_blog_page_details'])->name('public.blog.show');
+Route::get('events', [BlogController::class, 'public_events_list'])->name('public.event.index');
+Route::get('event/{slug}', [BlogController::class, 'public_event_details'])->name('public.event.show');
 
 /* static pages */
 Route::get('/about-us', function () {
     return view('pages.about_us');
-});
-Route::get('/events', function () {
-    return view('pages.event_list');
 });
 
 Route::get('/videos', function () {

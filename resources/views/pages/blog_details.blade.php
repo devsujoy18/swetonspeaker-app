@@ -5,12 +5,14 @@
             </div>
             <div class="container">
                 <div class="page-header__inner">
-                    <h2>Events &amp; Blogs Details</h2>
+                    <h2>{{ $pageTitle }}</h2>
                     
                     <ul class="thm-breadcrumb list-unstyled">
-                        <li><a href="#">Home</a></li>
-                        <li><span>//</span></li>
-                        <li>Events &amp; Blogs Details</li>
+                        <li><a href="{{ route('home') }}">Home</a></li>
+                        <li><span>&gt;&gt;</span></li>
+                        <li><a href="{{ route($listRoute) }}">{{ $listTitle }}</a></li>
+                        <li><span>&gt;&gt;</span></li>
+                        <li>{{ $blog->title }}</li>
                     </ul>
                 </div>
             </div>
@@ -76,7 +78,7 @@
                                 </div>
                             @empty
                             <div class="no-reviews">
-                                <p>No comment available for this blog. Be the first to leave a comment!</p>
+                                <p>No comment available for this {{ $entityName }}. Be the first to leave a comment!</p>
                             </div>
                             @endforelse
                                 
@@ -88,7 +90,7 @@
                         <div class="sidebar">
                            
                             <div class="sidebar__single sidebar__post">
-                                <h3 class="sidebar__title">Latest Events &amp; Blogs</h3>
+                                <h3 class="sidebar__title">{{ $latestTitle }}</h3>
                                 <ul class="sidebar__post-list list-unstyled">
                                     @forelse($latestBlogsAndEvents as $blog)
                                     <li>
@@ -97,7 +99,7 @@
                                         </div>
                                         <div class="sidebar__post-content">
                                             <h3>
-                                                <a href="{{ route('public.blogdetails', $blog->slug ) }}">{{ $blog->title }}</a>
+                                                <a href="{{ route($detailRoute, $blog->slug) }}">{{ $blog->title }}</a>
                                             </h3>
                                             <p>{{ $blog->publish_date->format('d M Y') }}</p>
                                         </div>

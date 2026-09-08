@@ -7,11 +7,11 @@
             </div>
             <div class="container">
                 <div class="page-header__inner">
-                    <h2>Events &amp; Blogs</h2>
+                    <h2>{{ $pageTitle }}</h2>
                     <ul class="thm-breadcrumb list-unstyled">
                         <li><a href="#">Home</a></li>
                         <li><span>//</span></li>
-                        <li>Events &amp; Blogs</li>
+                        <li>{{ $pageTitle }}</li>
                     </ul>
                 </div>
             </div>
@@ -23,7 +23,7 @@
             <div class="container">
                 <div class="section-title section-title--two text-center">
                    
-                    <h2 class="section-title__title">Events &amp; Blogs</h2>
+                    <h2 class="section-title__title">{{ $pageTitle }}</h2>
                     
                 </div>
                 <div class="row">
@@ -48,13 +48,13 @@
                                 </ul>
                                 <h3 class="blog-one__title"><a href="#">{{ $blog->title }}</a></h3>
                                 <div class="blog-one__btn-box">
-                                    <a href="{{ route('public.blogdetails', $blog->slug ) }}" class="thm-btn blog-one__btn">Read More</a>
+                                    <a href="{{ route($detailRoute, $blog->slug) }}" class="thm-btn blog-one__btn">Read More</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     @empty
-                        <div>No blogs available at the moment.</div>
+                        <div>{{ $emptyMessage }}</div>
                     @endforelse
                     
                     <!--Blog One Single End-->
