@@ -129,19 +129,46 @@
 <script src="{{ asset('admin_assets/plugins/summernote/summernote-bs4.min.js') }}"></script>
 <script type="text/javascript">
     $(function () {
-        // Summernote
-        $('.summernote').summernote();
-
-        $('.summernote').on('summernote.paste', function(e, event) {
-            console.log(event);
-            let clipboardData = (event.originalEvent || event).clipboardData || window.clipboardData;
-            let pastedData = clipboardData.getData('text/plain');
-            console.log(pastedData);
-            event.preventDefault(); // Prevent the default paste action
-            $(this).summernote('pasteHTML', pastedData); // Paste sanitized plain text
+        $('.summernote').summernote({
+            height: 500,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'hr']],
+                ['view', ['fullscreen', 'codeview', 'help']],
+            ],
+            callbacks: {
+                onImageUpload(files) {
+                    Array.from(files).forEach((file) => uploadBlogContentImage(file, this));
+                },
+            },
         });
-
     });
+
+    function uploadBlogContentImage(file, editor) {
+        const formData = new FormData();
+        formData.append('_token', '{{ csrf_token() }}');
+        formData.append('image', file);
+
+        $.ajax({
+            url: '{{ route('blog.content-image.upload') }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success(response) {
+                $(editor).summernote('insertImage', response.url);
+            },
+            error(response) {
+                const message = response.responseJSON?.message || 'The image could not be uploaded.';
+                alert(message);
+            },
+        });
+    }
 </script>
 </x-slot>
 </x-admin_layout>

@@ -427,6 +427,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('blog-edit/{blogId}', [BlogController::class, 'edit'])->name('blog.edit');
     Route::get('blog-show/{blogId}', [BlogController::class, 'show'])->name('blog.show');
     Route::put('blog-update/{blogId}', [BlogController::class, 'update'])->name('blog.update');
+    Route::post('blog-content-image-upload', [BlogController::class, 'upload_content_image'])->name('blog.content-image.upload');
     Route::get('blog-images/{blogId}', [BlogController::class, 'blog_images'])->name('blog.images');
     Route::post('blog-images-upload/{blogId}', [BlogController::class, 'upload_multi_image'])->name('blog.uploadImages');
     Route::get('blog-image-delete/{imgId}', [BlogController::class, 'blog_images_del'])->name('delete.uploadImages');

@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\Blogimage;
 use App\Models\Blogreview;
+use App\Support\RichTextSanitizer;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class BlogController extends Controller
 {
+    public function __construct(private RichTextSanitizer $richTextSanitizer) {}
+
     /**
      * All public views
      */
@@ -114,6 +119,8 @@ class BlogController extends Controller
             ->when($type, fn ($query) => $query->where('type', $type))
             ->firstOrFail();
 
+        $blog->long_description = $this->richTextSanitizer->sanitize($blog->long_description);
+
         $latestBlogsAndEvents = Blog::query()
             ->where('slug', '!=', $slug)
             ->when($type, fn ($query) => $query->where('type', $type))
@@ -175,11 +182,7 @@ class BlogController extends Controller
         $blog->video_link = $request->video_link;
         $blog->short_description = $request->short_description;
 
-        $allowed_tags = '<p><a><b><strong><i><em><ul><ol><li><h1><h2><h3><h4><h5><h6><br><img>';
-        $longDescription = strip_tags($request->long_description, $allowed_tags);
-        $longDescription = htmlspecialchars($longDescription, ENT_QUOTES, 'UTF-8');
-
-        $blog->long_description = $longDescription;
+        $blog->long_description = $this->richTextSanitizer->sanitize($request->string('long_description')->toString());
         $blog->order_no = $request->order_no;
         $blog->is_current_event = $request->is_current_event ?? 0;
         $blog->show_on_home = $request->show_on_home ?? 0;
@@ -256,17 +259,31 @@ class BlogController extends Controller
         $blog->video_link = $request->video_link;
         $blog->short_description = $request->short_description;
 
-        $allowed_tags = '<p><a><b><strong><i><em><ul><ol><li><h1><h2><h3><h4><h5><h6><br><img>';
-        $longDescription = strip_tags($request->long_description, $allowed_tags);
-        $longDescription = htmlspecialchars($longDescription, ENT_QUOTES, 'UTF-8');
-
-        $blog->long_description = $longDescription;
+        $blog->long_description = $this->richTextSanitizer->sanitize($request->string('long_description')->toString());
         $blog->order_no = $request->order_no;
         $blog->is_current_event = $request->is_current_event ?? 0;
         $blog->show_on_home = $request->show_on_home ?? 0;
         $blog->save();
 
         return redirect()->route('blog.index')->with('success', 'Status updated successfully');
+    }
+
+    public function upload_content_image(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
+        ]);
+
+        $image = $validated['image'];
+        $destinationPath = public_path('uploads/blog-content');
+        $fileName = Str::uuid().'.'.$image->extension();
+
+        File::ensureDirectoryExists($destinationPath);
+        $image->move($destinationPath, $fileName);
+
+        return response()->json([
+            'url' => asset('uploads/blog-content/'.$fileName),
+        ]);
     }
 
     public function blog_images($blogId)

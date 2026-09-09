@@ -1,4 +1,41 @@
 <x-frontend_layout>
+        <x-slot:styles>
+            <style>
+                .blog-rich-content {
+                    max-width: 100%;
+                    overflow-wrap: anywhere;
+                }
+
+                .blog-rich-content p,
+                .blog-rich-content ul,
+                .blog-rich-content ol,
+                .blog-rich-content blockquote,
+                .blog-rich-content figure,
+                .blog-rich-content pre,
+                .blog-rich-content table {
+                    margin-bottom: 1rem;
+                }
+
+                .blog-rich-content img {
+                    max-width: 100%;
+                    height: auto !important;
+                }
+
+                .blog-rich-content table {
+                    display: block;
+                    width: 100%;
+                    max-width: 100%;
+                    overflow-x: auto;
+                }
+
+                .blog-rich-content pre {
+                    max-width: 100%;
+                    overflow-x: auto;
+                    white-space: pre-wrap;
+                }
+            </style>
+        </x-slot:styles>
+
          <!--Page Header Start-->
         <section class="page-header">
             <div class="page-header-bg" style="background-image: url({{ asset('public_assets/images/backgrounds/page-header-bg.jpg') }})">
@@ -28,7 +65,7 @@
                                     <img src="{{ url('/') }}/uploads/{{ $blog->image_path }}" alt="">
                                 </div>
                                 <h3 class="blog-sidebar__title blog-sidebar__title-1">{{ $blog->title }}</h3>
-                                <p class="blog-sidebar__text-1">{!! $blog->long_description !!}</p>
+                                <div class="blog-sidebar__text-1 blog-rich-content">{!! $blog->long_description !!}</div>
                                 @if($blog->video_link)
                                 <div>
                                    <iframe class="yt-ifrem" width="100%" height="300" src="{{ $blog->video_link }}" title="{{ $blog->title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
