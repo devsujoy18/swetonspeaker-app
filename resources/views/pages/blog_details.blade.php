@@ -1,4 +1,4 @@
-<x-frontend_layout>
+<x-frontend_layout :show-page-faqs="false">
         <x-slot:styles>
             <style>
                 .blog-rich-content {
@@ -93,6 +93,10 @@
                             @endif
                          
                         </div>
+                        @if($pageFaqs->isNotEmpty())
+                            <x-frontend_page_faqs :page-faqs="$pageFaqs" :embedded="true" />
+                        @endif
+
                         <div class="comment-one">
                             <h3 class="comment-one__title">
                                 @if($blogreviews->count() > 0)

@@ -5,6 +5,8 @@
         PageFaq::PageTypePage => 'Page',
         PageFaq::PageTypeCategory => 'Category',
         PageFaq::PageTypeProduct => 'Product',
+        PageFaq::PageTypeBlog => 'Blog',
+        PageFaq::PageTypeEvent => 'Event',
     ];
 
     $selectedPageKey = function (PageFaq $pageFaq): string {

@@ -1,3 +1,7 @@
+@props([
+    'showPageFaqs' => true,
+])
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,19 +49,19 @@
         $pageFaqQuery = PageFaq::active()->forType(PageFaq::TypeMainSite)->ordered();
         $pageFaqs = collect();
 
-        if ($routeName === 'product.public.details' && is_string($routeSlug)) {
+        if ($showPageFaqs && $routeName === 'product.public.details' && is_string($routeSlug)) {
             $pageFaqs = (clone $pageFaqQuery)->forPageType(PageFaq::PageTypeProduct)->forSlug($routeSlug)->get();
         }
 
-        if ($pageFaqs->isEmpty() && $routeName === 'category.products' && is_string($routeSlug)) {
+        if ($showPageFaqs && $pageFaqs->isEmpty() && $routeName === 'category.products' && is_string($routeSlug)) {
             $pageFaqs = (clone $pageFaqQuery)->forPageType(PageFaq::PageTypeCategory)->forSlug($routeSlug)->get();
         }
 
-        if ($pageFaqs->isEmpty()) {
+        if ($showPageFaqs && $pageFaqs->isEmpty()) {
             $pageFaqs = (clone $pageFaqQuery)->forPath($currentPath)->get();
         }
 
-        if ($pageFaqs->isEmpty() && $routeName) {
+        if ($showPageFaqs && $pageFaqs->isEmpty() && $routeName) {
             $pageFaqs = (clone $pageFaqQuery)
                 ->forPageType(PageFaq::PageTypePage)
                 ->forRoute($routeName)
@@ -174,7 +178,7 @@
 
         {{ $slot }}
 
-        @if($pageFaqs->isNotEmpty())
+        @if($showPageFaqs && $pageFaqs->isNotEmpty())
             <x-frontend_page_faqs :page-faqs="$pageFaqs" />
         @endif
 

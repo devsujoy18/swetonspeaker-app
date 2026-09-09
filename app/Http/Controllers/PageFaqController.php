@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PageFaqRequest;
+use App\Models\Blog;
 use App\Models\Category;
 use App\Models\PageFaq;
 use App\Models\Product;
@@ -71,6 +72,8 @@ class PageFaqController extends Controller
             ],
             PageFaq::PageTypeCategory => [],
             PageFaq::PageTypeProduct => [],
+            PageFaq::PageTypeBlog => [],
+            PageFaq::PageTypeEvent => [],
         ];
 
         Category::orderBy('type_id')->orderBy('order_no')->get()->each(function (Category $category) use (&$options): void {
@@ -105,7 +108,53 @@ class PageFaqController extends Controller
             ];
         });
 
+        Blog::query()
+            ->where('type', 'blog')
+            ->whereNotNull('slug')
+            ->orderBy('order_no')
+            ->orderBy('title')
+            ->get()
+            ->each(function (Blog $blog) use (&$options): void {
+                $options[PageFaq::PageTypeBlog][(string) $blog->id] = $this->contentOption(
+                    content: $blog,
+                    pageType: PageFaq::PageTypeBlog,
+                    routeName: 'public.blog.show',
+                    pathPrefix: 'blog',
+                );
+            });
+
+        Blog::query()
+            ->where('type', 'event')
+            ->whereNotNull('slug')
+            ->orderBy('order_no')
+            ->orderBy('title')
+            ->get()
+            ->each(function (Blog $event) use (&$options): void {
+                $options[PageFaq::PageTypeEvent][(string) $event->id] = $this->contentOption(
+                    content: $event,
+                    pageType: PageFaq::PageTypeEvent,
+                    routeName: 'public.event.show',
+                    pathPrefix: 'event',
+                );
+            });
+
         return $options;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function contentOption(Blog $content, string $pageType, string $routeName, string $pathPrefix): array
+    {
+        return [
+            'label' => $this->cleanOptionLabel($content->title),
+            'page_type' => $pageType,
+            'route_name' => $routeName,
+            'path' => '/'.$pathPrefix.'/'.$content->slug,
+            'entity_type' => Blog::class,
+            'entity_id' => $content->id,
+            'slug' => $content->slug,
+        ];
     }
 
     /**

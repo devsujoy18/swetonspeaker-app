@@ -1,8 +1,13 @@
+@props([
+    'pageFaqs',
+    'embedded' => false,
+])
+
 @php
     $faqGroupName = 'page-faq-accrodion-'.md5(request()->path() ?: 'home');
 @endphp
 
-<section class="product">
+<section class="{{ $embedded ? 'page-faqs-inline' : 'product' }}">
     <style>
         .page-faqs-block .accrodion {
             background-color: #e7eff8;
@@ -79,6 +84,10 @@
             margin-bottom: 0;
         }
 
+        .page-faqs-inline {
+            margin: 40px 0;
+        }
+
         @media (max-width: 767px) {
             .page-faqs-block .accrodion-title {
                 padding: 20px;
@@ -95,9 +104,11 @@
         }
     </style>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-xl-12 col-lg-12">
+    @unless($embedded)
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12 col-lg-12">
+    @endunless
                 <h2 class="services-one__title" style="margin-bottom:10px">Frequently Asked Question - Sweton Speakers</h2>
                 <div class="faq-one__right page-faqs-block">
                     <div class="accrodion-grp faq-one-accrodion faq-one-accrodion-1" data-grp-name="{{ $faqGroupName }}">
@@ -118,7 +129,9 @@
                         @endforeach
                     </div>
                 </div>
+    @unless($embedded)
+                </div>
             </div>
         </div>
-    </div>
+    @endunless
 </section>

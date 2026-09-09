@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\Blogimage;
 use App\Models\Blogreview;
+use App\Models\PageFaq;
 use App\Support\RichTextSanitizer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -133,6 +134,14 @@ class BlogController extends Controller
             ->where('status', 1)
             ->get();
 
+        $pageFaqs = PageFaq::query()
+            ->active()
+            ->forType(PageFaq::TypeMainSite)
+            ->forPageType($blog->type)
+            ->forEntity(Blog::class, $blog->id)
+            ->ordered()
+            ->get();
+
         return view('pages.blog_details', compact(
             'blog',
             'latestBlogsAndEvents',
@@ -143,6 +152,7 @@ class BlogController extends Controller
             'listRoute',
             'listTitle',
             'entityName',
+            'pageFaqs',
         ));
     }
 
