@@ -103,7 +103,18 @@
 						            <input class="form-check-input" type="checkbox" name="show_on_home" value="1" @if(old('show_on_home', $blog->show_on_home) == '1') checked @endif>
 						            <label class="form-check-label">Yes</label>
 					            </div>
-				            </div>
+			            </div>
+
+                            <div class="form-group">
+                                <label for="show_main_image_on_details">Show Main Image on Details Page</label>
+                                <select id="show_main_image_on_details" name="show_main_image_on_details" class="form-control">
+                                    <option value="1" @selected((string) old('show_main_image_on_details', $blog->show_main_image_on_details ? '1' : '0') === '1')>Yes</option>
+                                    <option value="0" @selected((string) old('show_main_image_on_details', $blog->show_main_image_on_details ? '1' : '0') === '0')>No</option>
+                                </select>
+                                @if($errors->has('show_main_image_on_details'))
+                                <x-validation_error class="text-danger" :error="$errors->first('show_main_image_on_details')"></x-validation_error>
+                                @endif
+                            </div>
 
                             <div class="form-group">
                                 <label>Main Image </label>

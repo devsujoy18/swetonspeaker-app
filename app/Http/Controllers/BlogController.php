@@ -182,6 +182,7 @@ class BlogController extends Controller
             'order_no' => 'required|numeric',
             'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:1024',
             'long_description' => 'nullable|string',
+            'show_main_image_on_details' => ['required', 'boolean'],
         ]);
 
         $blog = new Blog;
@@ -196,6 +197,7 @@ class BlogController extends Controller
         $blog->order_no = $request->order_no;
         $blog->is_current_event = $request->is_current_event ?? 0;
         $blog->show_on_home = $request->show_on_home ?? 0;
+        $blog->show_main_image_on_details = $request->boolean('show_main_image_on_details');
 
         // Image Upload using Image intervention
         $imageName = '';
@@ -242,6 +244,7 @@ class BlogController extends Controller
             'order_no' => 'required|numeric',
             'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:1024',
             'long_description' => 'nullable|string',
+            'show_main_image_on_details' => ['required', 'boolean'],
         ]);
 
         $blog = Blog::find($blogId);
@@ -273,6 +276,7 @@ class BlogController extends Controller
         $blog->order_no = $request->order_no;
         $blog->is_current_event = $request->is_current_event ?? 0;
         $blog->show_on_home = $request->show_on_home ?? 0;
+        $blog->show_main_image_on_details = $request->boolean('show_main_image_on_details');
         $blog->save();
 
         return redirect()->route('blog.index')->with('success', 'Status updated successfully');

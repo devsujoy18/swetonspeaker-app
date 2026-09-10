@@ -30,6 +30,7 @@ class BlogRichContentFeatureTest extends TestCase
                 'type' => 'blog',
                 'order_no' => 1,
                 'long_description' => $richContent,
+                'show_main_image_on_details' => '1',
             ])
             ->assertRedirect(route('blog.index'));
 

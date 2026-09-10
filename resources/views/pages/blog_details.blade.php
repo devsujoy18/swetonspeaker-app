@@ -61,9 +61,11 @@
                     <div class="col-xl-8 col-lg-7">
                         <div class="blog-sidebar__left">
                             <div class="blog-sidebar__img-box">
+                                @if($blog->show_main_image_on_details && $blog->image_path)
                                 <div class="blog-sidebar__img">
                                     <img src="{{ url('/') }}/uploads/{{ $blog->image_path }}" alt="">
                                 </div>
+                                @endif
                                 <h3 class="blog-sidebar__title blog-sidebar__title-1">{{ $blog->title }}</h3>
                                 <div class="blog-sidebar__text-1 blog-rich-content">{!! $blog->long_description !!}</div>
                                 @if($blog->video_link)
