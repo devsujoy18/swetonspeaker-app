@@ -118,6 +118,7 @@ class BlogController extends Controller
         $blog = Blog::query()
             ->with('blogimages')
             ->where('slug', $slug)
+            ->where('status', 0)
             ->when($type, fn ($query) => $query->where('type', $type))
             ->firstOrFail();
 
@@ -125,6 +126,7 @@ class BlogController extends Controller
 
         $latestBlogsAndEvents = Blog::query()
             ->where('slug', '!=', $slug)
+            ->where('status', 0)
             ->when($type, fn ($query) => $query->where('type', $type))
             ->orderByDesc('publish_date')
             ->take(5)

@@ -63,6 +63,7 @@ class PublicBlogAndEventPagesTest extends TestCase
     {
         $blog = $this->createContent('blog', 0, 'Blog detail route');
         $event = $this->createContent('event', 0, 'Event detail route mismatch');
+        $inactiveBlog = $this->createContent('blog', 1, 'Inactive blog excluded from latest');
 
         $this->get(route('public.blog.show', $blog->slug))
             ->assertOk()
@@ -71,22 +72,25 @@ class PublicBlogAndEventPagesTest extends TestCase
             ->assertViewHas(
                 'latestBlogsAndEvents',
                 fn ($latestBlogs): bool => $latestBlogs->every(
-                    fn (Blog $latestBlog): bool => $latestBlog->type === 'blog'
-                )
+                    fn (Blog $latestBlog): bool => $latestBlog->type === 'blog' && $latestBlog->status === 0
+                ) && ! $latestBlogs->contains($inactiveBlog)
             )
             ->assertViewHas('pageTitle', 'Blog Details')
             ->assertViewHas('detailRoute', 'public.blog.show')
+            ->assertSee('No latest blogs available at the moment.')
             ->assertSee('<a href="'.route('home').'">Home</a>', false)
             ->assertSee('<a href="'.route('public.blog.index').'">Blogs</a>', false)
             ->assertSeeTextInOrder(['Home', 'Blogs', $blog->title]);
 
         $this->get(route('public.blog.show', $event->slug))->assertNotFound();
+        $this->get(route('public.blog.show', $inactiveBlog->slug))->assertNotFound();
     }
 
     public function test_event_detail_route_only_resolves_event_records(): void
     {
         $event = $this->createContent('event', 0, 'Event detail route');
         $blog = $this->createContent('blog', 0, 'Blog detail route mismatch');
+        $inactiveEvent = $this->createContent('event', 1, 'Inactive event excluded from latest');
 
         $this->get(route('public.event.show', $event->slug))
             ->assertOk()
@@ -95,16 +99,18 @@ class PublicBlogAndEventPagesTest extends TestCase
             ->assertViewHas(
                 'latestBlogsAndEvents',
                 fn ($latestEvents): bool => $latestEvents->every(
-                    fn (Blog $latestEvent): bool => $latestEvent->type === 'event'
-                )
+                    fn (Blog $latestEvent): bool => $latestEvent->type === 'event' && $latestEvent->status === 0
+                ) && ! $latestEvents->contains($inactiveEvent)
             )
             ->assertViewHas('pageTitle', 'Event Details')
             ->assertViewHas('detailRoute', 'public.event.show')
+            ->assertSee('No latest events available at the moment.')
             ->assertSee('<a href="'.route('home').'">Home</a>', false)
             ->assertSee('<a href="'.route('public.event.index').'">Events</a>', false)
             ->assertSeeTextInOrder(['Home', 'Events', $event->title]);
 
         $this->get(route('public.event.show', $blog->slug))->assertNotFound();
+        $this->get(route('public.event.show', $inactiveEvent->slug))->assertNotFound();
     }
 
     public function test_legacy_combined_routes_remain_available(): void

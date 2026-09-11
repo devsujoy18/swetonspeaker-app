@@ -151,7 +151,7 @@
                                         </div>
                                     </li>
                                     @empty
-                                        <li>No latest events or blogs available at the moment.</li>
+                                        <li>No latest {{ strtolower($listTitle) }} available at the moment.</li>
                                     @endforelse
                                 </ul>
                             </div>
