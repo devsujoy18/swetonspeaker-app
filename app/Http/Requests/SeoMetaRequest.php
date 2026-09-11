@@ -23,6 +23,8 @@ class SeoMetaRequest extends FormRequest
                 SeoMeta::PageTypePage,
                 SeoMeta::PageTypeCategory,
                 SeoMeta::PageTypeProduct,
+                SeoMeta::PageTypeBlog,
+                SeoMeta::PageTypeEvent,
             ])],
             'page_key' => ['required', 'string', 'max:255'],
             'title' => ['required', 'string', 'max:255'],

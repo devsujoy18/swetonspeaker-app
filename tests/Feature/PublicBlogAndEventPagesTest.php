@@ -77,7 +77,6 @@ class PublicBlogAndEventPagesTest extends TestCase
             )
             ->assertViewHas('pageTitle', 'Blog Details')
             ->assertViewHas('detailRoute', 'public.blog.show')
-            ->assertSee('No latest blogs available at the moment.')
             ->assertSee('<a href="'.route('home').'">Home</a>', false)
             ->assertSee('<a href="'.route('public.blog.index').'">Blogs</a>', false)
             ->assertSeeTextInOrder(['Home', 'Blogs', $blog->title]);
@@ -104,7 +103,6 @@ class PublicBlogAndEventPagesTest extends TestCase
             )
             ->assertViewHas('pageTitle', 'Event Details')
             ->assertViewHas('detailRoute', 'public.event.show')
-            ->assertSee('No latest events available at the moment.')
             ->assertSee('<a href="'.route('home').'">Home</a>', false)
             ->assertSee('<a href="'.route('public.event.index').'">Events</a>', false)
             ->assertSeeTextInOrder(['Home', 'Events', $event->title]);

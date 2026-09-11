@@ -5,6 +5,8 @@
         SeoMeta::PageTypePage => 'Page',
         SeoMeta::PageTypeCategory => 'Category',
         SeoMeta::PageTypeProduct => 'Product',
+        SeoMeta::PageTypeBlog => 'Blog',
+        SeoMeta::PageTypeEvent => 'Event',
     ];
 
     $selectedPageType = function (SeoMeta $seoMeta): string {

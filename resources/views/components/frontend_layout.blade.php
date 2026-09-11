@@ -29,6 +29,14 @@
             $seoMeta = (clone $seoQuery)->forPageType(SeoMeta::PageTypeCategory)->forSlug($routeSlug)->latest()->first();
         }
 
+        if (! $seoMeta && $routeName === 'public.blog.show' && is_string($routeSlug)) {
+            $seoMeta = (clone $seoQuery)->forPageType(SeoMeta::PageTypeBlog)->forSlug($routeSlug)->latest()->first();
+        }
+
+        if (! $seoMeta && $routeName === 'public.event.show' && is_string($routeSlug)) {
+            $seoMeta = (clone $seoQuery)->forPageType(SeoMeta::PageTypeEvent)->forSlug($routeSlug)->latest()->first();
+        }
+
         if (! $seoMeta) {
             $seoMeta = (clone $seoQuery)->forPath($currentPath)->latest()->first();
         }

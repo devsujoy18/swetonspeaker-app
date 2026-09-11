@@ -19,6 +19,10 @@ class SeoMeta extends Model
 
     public const PageTypeProduct = 'product';
 
+    public const PageTypeBlog = 'blog';
+
+    public const PageTypeEvent = 'event';
+
     protected $fillable = [
         'type',
         'page_type',

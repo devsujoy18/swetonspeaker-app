@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SeoMetaRequest;
+use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\SeoMeta;
@@ -82,6 +83,8 @@ class SeoMetaController extends Controller
             ],
             SeoMeta::PageTypeCategory => [],
             SeoMeta::PageTypeProduct => [],
+            SeoMeta::PageTypeBlog => [],
+            SeoMeta::PageTypeEvent => [],
         ];
 
         Category::orderBy('type_id')->orderBy('order_no')->get()->each(function (Category $category) use (&$options): void {
@@ -116,7 +119,53 @@ class SeoMetaController extends Controller
             ];
         });
 
+        Blog::query()
+            ->where('type', SeoMeta::PageTypeBlog)
+            ->whereNotNull('slug')
+            ->orderBy('order_no')
+            ->orderBy('title')
+            ->get()
+            ->each(function (Blog $blog) use (&$options): void {
+                $options[SeoMeta::PageTypeBlog][(string) $blog->id] = $this->contentOption(
+                    content: $blog,
+                    pageType: SeoMeta::PageTypeBlog,
+                    routeName: 'public.blog.show',
+                    pathPrefix: 'blog',
+                );
+            });
+
+        Blog::query()
+            ->where('type', SeoMeta::PageTypeEvent)
+            ->whereNotNull('slug')
+            ->orderBy('order_no')
+            ->orderBy('title')
+            ->get()
+            ->each(function (Blog $event) use (&$options): void {
+                $options[SeoMeta::PageTypeEvent][(string) $event->id] = $this->contentOption(
+                    content: $event,
+                    pageType: SeoMeta::PageTypeEvent,
+                    routeName: 'public.event.show',
+                    pathPrefix: 'event',
+                );
+            });
+
         return $options;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function contentOption(Blog $content, string $pageType, string $routeName, string $pathPrefix): array
+    {
+        return [
+            'label' => $this->cleanOptionLabel($content->title),
+            'page_type' => $pageType,
+            'route_name' => $routeName,
+            'path' => '/'.$pathPrefix.'/'.$content->slug,
+            'entity_type' => Blog::class,
+            'entity_id' => $content->id,
+            'slug' => $content->slug,
+        ];
     }
 
     /**
