@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BlogScriptController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\KeyfeatureController;
 use App\Http\Controllers\MountinginfoController;
@@ -364,6 +365,10 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('page-faq', PageFaqController::class)
         ->parameters(['page-faq' => 'pageFaq'])
+        ->except(['create', 'show', 'edit']);
+
+    Route::resource('blog-script', BlogScriptController::class)
+        ->parameters(['blog-script' => 'blogScript'])
         ->except(['create', 'show', 'edit']);
 
     Route::get('product/{id}/image', [ProductController::class, 'upload_image'])->name('product.image');

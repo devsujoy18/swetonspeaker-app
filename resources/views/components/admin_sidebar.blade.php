@@ -103,6 +103,13 @@
                   <p>Page FAQ</p>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a href="{{ route('blog-script.index') }}" class="nav-link {{ request()->is('blog-script*') ? 'active' : '' }}">
+                  <i class="nav-icon fas fa-code"></i>
+                  <p>Blog/Event Scripts</p>
+                </a>
+            </li>
             
             <li class="nav-item">
                 <a href="{{ route('product.enquiry.list') }}" class="nav-link {{ request()->is('all-enquiries') ? 'active' : '' }}">

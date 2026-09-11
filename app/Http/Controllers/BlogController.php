@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\Blogimage;
 use App\Models\Blogreview;
+use App\Models\BlogScript;
 use App\Models\PageFaq;
 use App\Support\RichTextSanitizer;
 use Illuminate\Contracts\View\View;
@@ -142,6 +143,17 @@ class BlogController extends Controller
             ->ordered()
             ->get();
 
+        $scriptsByPosition = BlogScript::query()
+            ->active()
+            ->forPageType($blog->type)
+            ->forBlog($blog)
+            ->orderBy('id')
+            ->get()
+            ->groupBy('position');
+
+        $headerScripts = $scriptsByPosition->get(BlogScript::PositionHeader, collect());
+        $footerScripts = $scriptsByPosition->get(BlogScript::PositionFooter, collect());
+
         return view('pages.blog_details', compact(
             'blog',
             'latestBlogsAndEvents',
@@ -153,6 +165,8 @@ class BlogController extends Controller
             'listTitle',
             'entityName',
             'pageFaqs',
+            'headerScripts',
+            'footerScripts',
         ));
     }
 

@@ -34,6 +34,9 @@
                     white-space: pre-wrap;
                 }
             </style>
+            @foreach($headerScripts as $headerScript)
+                {!! $headerScript->script !!}
+            @endforeach
         </x-slot:styles>
 
          <!--Page Header Start-->
@@ -159,5 +162,11 @@
                 </div>
             </div>
         </section>
+
+        <x-slot:scripts>
+            @foreach($footerScripts as $footerScript)
+                {!! $footerScript->script !!}
+            @endforeach
+        </x-slot:scripts>
         
 </x-frontend_layout>
