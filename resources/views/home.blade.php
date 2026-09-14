@@ -3181,8 +3181,9 @@ So, according to me, sweton's products are amazing! really amazing! .
 
 
         <!--Blog Two Start-->
-        <x-home-blog></x-home-blog>
-        <!--Blog Two End-->	
+        <livewire:home-events />
+        <livewire:home-blogs />
+        <!--Blog Two End-->
         
         
        

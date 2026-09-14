@@ -76,6 +76,8 @@ class AppServiceProvider extends ServiceProvider
     {
         return [
             'home.blogs',
+            'home.home-events',
+            'home.home-blogs',
             'home.featured-categories.1',
             'home.featured-categories.2',
             'home.featured-products',
