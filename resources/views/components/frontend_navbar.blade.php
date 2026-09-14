@@ -27,7 +27,10 @@
                             </ul>
                         </li>
                         <li>
-                            <a href="{{ route('public.blogs') }}">Events &amp; Blogs</a>
+                            <a href="{{ route('public.event.index') }}">Events</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('public.blog.index') }}">Blogs</a>
                         </li>
                         <li>
                             <a href="{{ url('videos') }}">Videos</a>
