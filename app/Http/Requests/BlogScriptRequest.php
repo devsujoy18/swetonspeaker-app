@@ -27,8 +27,15 @@ class BlogScriptRequest extends FormRequest
             'page_type' => ['required', Rule::in([
                 BlogScript::PageTypeBlog,
                 BlogScript::PageTypeEvent,
+                BlogScript::PageTypeBlogList,
+                BlogScript::PageTypeEventList,
             ])],
-            'blog_id' => ['required', 'integer', 'min:1'],
+            'blog_id' => [
+                Rule::requiredIf(fn (): bool => ! BlogScript::isListPageType((string) $this->input('page_type'))),
+                'nullable',
+                'integer',
+                'min:1',
+            ],
             'position' => ['required', Rule::in([
                 BlogScript::PositionHeader,
                 BlogScript::PositionFooter,

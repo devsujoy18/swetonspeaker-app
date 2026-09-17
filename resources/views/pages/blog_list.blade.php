@@ -1,6 +1,11 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 <x-frontend_layout>
+    <x-slot:styles>
+        @foreach($headerScripts as $headerScript)
+            {!! $headerScript->script !!}
+        @endforeach
+    </x-slot:styles>
         <!--Page Header Start-->
         <section class="page-header">
             <div class="page-header-bg" style="background-image: url({{ asset('public_assets/images/backgrounds/page-header-bg.jpg') }})">
@@ -70,5 +75,9 @@
         </div>
         <!--Blog One End-->
 
-    
+    <x-slot:scripts>
+        @foreach($footerScripts as $footerScript)
+            {!! $footerScript->script !!}
+        @endforeach
+    </x-slot:scripts>
 </x-frontend_layout>

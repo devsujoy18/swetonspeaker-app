@@ -102,7 +102,25 @@ class BlogController extends Controller
             ->withCount('blogreviews')
             ->paginate(10);
 
-        return view('pages.blog_list', compact('blogs', 'pageTitle', 'detailRoute', 'emptyMessage'));
+        $scriptPageType = match ($type) {
+            BlogScript::PageTypeBlog => BlogScript::PageTypeBlogList,
+            BlogScript::PageTypeEvent => BlogScript::PageTypeEventList,
+            default => null,
+        };
+
+        $scriptsByPosition = $scriptPageType
+            ? BlogScript::query()
+                ->active()
+                ->forPageType($scriptPageType)
+                ->orderBy('id')
+                ->get()
+                ->groupBy('position')
+            : collect();
+
+        $headerScripts = $scriptsByPosition->get(BlogScript::PositionHeader, collect());
+        $footerScripts = $scriptsByPosition->get(BlogScript::PositionFooter, collect());
+
+        return view('pages.blog_list', compact('blogs', 'pageTitle', 'detailRoute', 'emptyMessage', 'headerScripts', 'footerScripts'));
     }
 
     private function publicTypeDetails(

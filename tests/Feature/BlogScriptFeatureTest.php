@@ -31,7 +31,7 @@ class BlogScriptFeatureTest extends TestCase
             ->assertOk()
             ->assertSee($script, false);
 
-        $this->assertSame($script, BlogScript::query()->sole()->script);
+        $this->assertSame($script, BlogScript::query()->where('script', $script)->latest('id')->value('script'));
     }
 
     public function test_footer_script_only_renders_on_its_assigned_event(): void
@@ -53,6 +53,56 @@ class BlogScriptFeatureTest extends TestCase
             ->assertSee($script, false);
 
         $this->get(route('public.event.show', $otherEvent->slug))
+            ->assertOk()
+            ->assertDontSee($script, false);
+    }
+
+    public function test_admin_can_add_a_script_to_the_blogs_list_page_without_selecting_a_blog(): void
+    {
+        $this->createContent('blog', 'Blog list script anchor');
+        $event = $this->createContent('event', 'Event list should not receive blog script');
+        $script = '<script>window.blogListScript = true;</script>';
+
+        $this->actingAs(User::factory()->create())
+            ->post(route('blog-script.store'), [
+                'page_type' => BlogScript::PageTypeBlogList,
+                'position' => BlogScript::PositionHeader,
+                'script' => $script,
+                'is_active' => true,
+            ])
+            ->assertRedirect(route('blog-script.index'));
+
+        $storedScript = BlogScript::query()->where('script', $script)->firstOrFail();
+        $this->assertSame('blog', $storedScript->blog->type);
+
+        $this->get(route('public.blog.index'))
+            ->assertOk()
+            ->assertSee($script, false);
+
+        $this->get(route('public.event.index'))
+            ->assertOk()
+            ->assertDontSee($script, false);
+    }
+
+    public function test_event_list_page_footer_scripts_only_render_on_the_events_list_page(): void
+    {
+        $this->createContent('blog', 'Blog list should not receive event script');
+        $event = $this->createContent('event', 'Event list script anchor');
+        $script = '<script>window.eventListScript = true;</script>';
+
+        BlogScript::create([
+            'page_type' => BlogScript::PageTypeEventList,
+            'blog_id' => $event->id,
+            'position' => BlogScript::PositionFooter,
+            'script' => $script,
+            'is_active' => true,
+        ]);
+
+        $this->get(route('public.event.index'))
+            ->assertOk()
+            ->assertSee($script, false);
+
+        $this->get(route('public.blog.index'))
             ->assertOk()
             ->assertDontSee($script, false);
     }

@@ -1,5 +1,12 @@
 @php
     use App\Models\BlogScript;
+
+    $pageTypeLabels = [
+        BlogScript::PageTypeBlog => 'Blog Details',
+        BlogScript::PageTypeEvent => 'Event Details',
+        BlogScript::PageTypeBlogList => 'Blog List Page',
+        BlogScript::PageTypeEventList => 'Event List Page',
+    ];
 @endphp
 
 <x-admin_layout>
@@ -38,8 +45,8 @@
                         @foreach($blogScripts as $blogScript)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ ucfirst($blogScript->page_type) }}</td>
-                                <td>{{ $blogScript->blog?->title ?? 'Deleted content' }}</td>
+                                <td>{{ $pageTypeLabels[$blogScript->page_type] ?? ucfirst($blogScript->page_type) }}</td>
+                                <td>{{ BlogScript::isListPageType($blogScript->page_type) ? ($blogScript->page_type === BlogScript::PageTypeBlogList ? 'Blogs' : 'Events') : ($blogScript->blog?->title ?? 'Deleted content') }}</td>
                                 <td>{{ ucfirst($blogScript->position) }}</td>
                                 <td>{{ $blogScript->is_active ? 'Active' : 'Inactive' }}</td>
                                 <td>
@@ -110,12 +117,27 @@
         <script src="//cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
         <script>
             const blogScriptOptions = @json($contentOptions);
+            const blogScriptListPageTypes = [
+                '{{ BlogScript::PageTypeBlogList }}',
+                '{{ BlogScript::PageTypeEventList }}',
+            ];
 
             function populateBlogScriptSelect(modal) {
                 const typeSelect = modal.querySelector('[data-blog-script-type]');
                 const contentSelect = modal.querySelector('[data-blog-script-select]');
+                const targetGroup = modal.querySelector('[data-blog-script-target-group]');
                 const selectedValue = contentSelect.getAttribute('data-selected') || '';
                 const options = blogScriptOptions[typeSelect.value] || {};
+                const isListPage = blogScriptListPageTypes.includes(typeSelect.value);
+
+                targetGroup.classList.toggle('d-none', isListPage);
+                contentSelect.disabled = isListPage;
+
+                if (isListPage) {
+                    contentSelect.innerHTML = '';
+
+                    return;
+                }
 
                 contentSelect.innerHTML = '';
 

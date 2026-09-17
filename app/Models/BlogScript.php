@@ -12,6 +12,10 @@ class BlogScript extends Model
 
     public const PageTypeEvent = 'event';
 
+    public const PageTypeBlogList = 'blog_list';
+
+    public const PageTypeEventList = 'event_list';
+
     public const PositionHeader = 'header';
 
     public const PositionFooter = 'footer';
@@ -57,5 +61,10 @@ class BlogScript extends Model
     public function scopeForBlog(Builder $query, Blog $blog): Builder
     {
         return $query->whereBelongsTo($blog);
+    }
+
+    public static function isListPageType(string $pageType): bool
+    {
+        return in_array($pageType, [self::PageTypeBlogList, self::PageTypeEventList], true);
     }
 }

@@ -9,15 +9,17 @@
         <div class="form-group">
             <label for="blog-script-page-type-{{ $blogScript->id ?? 'new' }}">Content Type</label>
             <select id="blog-script-page-type-{{ $blogScript->id ?? 'new' }}" class="custom-select" name="page_type" data-blog-script-type>
-                <option value="{{ BlogScript::PageTypeBlog }}" @selected($selectedType === BlogScript::PageTypeBlog)>Blog</option>
-                <option value="{{ BlogScript::PageTypeEvent }}" @selected($selectedType === BlogScript::PageTypeEvent)>Event</option>
+                <option value="{{ BlogScript::PageTypeBlog }}" @selected($selectedType === BlogScript::PageTypeBlog)>Blog Details</option>
+                <option value="{{ BlogScript::PageTypeEvent }}" @selected($selectedType === BlogScript::PageTypeEvent)>Event Details</option>
+                <option value="{{ BlogScript::PageTypeBlogList }}" @selected($selectedType === BlogScript::PageTypeBlogList)>Blog List Page</option>
+                <option value="{{ BlogScript::PageTypeEventList }}" @selected($selectedType === BlogScript::PageTypeEventList)>Event List Page</option>
             </select>
             @if($errors->has('page_type'))
                 <x-validation_error class="text-danger" :error="$errors->first('page_type')"></x-validation_error>
             @endif
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6" data-blog-script-target-group>
         <div class="form-group">
             <label for="blog-script-target-{{ $blogScript->id ?? 'new' }}">Select Blog/Event</label>
             <select id="blog-script-target-{{ $blogScript->id ?? 'new' }}" class="custom-select" name="blog_id" data-blog-script-select data-selected="{{ $selectedBlogId }}"></select>

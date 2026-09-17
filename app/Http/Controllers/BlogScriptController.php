@@ -8,6 +8,7 @@ use App\Models\BlogScript;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 
 class BlogScriptController extends Controller
 {
@@ -48,6 +49,8 @@ class BlogScriptController extends Controller
         $options = [
             BlogScript::PageTypeBlog => [],
             BlogScript::PageTypeEvent => [],
+            BlogScript::PageTypeBlogList => [],
+            BlogScript::PageTypeEventList => [],
         ];
 
         Blog::query()
@@ -70,6 +73,15 @@ class BlogScriptController extends Controller
     private function payload(BlogScriptRequest $request): array
     {
         $validated = $request->validated();
+
+        if (BlogScript::isListPageType($validated['page_type'])) {
+            $blog = $this->listPageAnchor($validated['page_type']);
+
+            return array_merge(Arr::only($validated, ['page_type', 'position', 'script', 'is_active']), [
+                'blog_id' => $blog->id,
+            ]);
+        }
+
         $blog = Blog::query()
             ->whereKey($validated['blog_id'])
             ->where('type', $validated['page_type'])
@@ -79,5 +91,25 @@ class BlogScriptController extends Controller
         return array_merge(Arr::only($validated, ['page_type', 'position', 'script', 'is_active']), [
             'blog_id' => $blog->id,
         ]);
+    }
+
+    private function listPageAnchor(string $pageType): Blog
+    {
+        $contentType = $pageType === BlogScript::PageTypeBlogList
+            ? BlogScript::PageTypeBlog
+            : BlogScript::PageTypeEvent;
+
+        $blog = Blog::query()
+            ->where('type', $contentType)
+            ->oldest('id')
+            ->first();
+
+        if (! $blog) {
+            throw ValidationException::withMessages([
+                'page_type' => 'Create a '.$contentType.' before adding a script to its list page.',
+            ]);
+        }
+
+        return $blog;
     }
 }
