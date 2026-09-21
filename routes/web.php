@@ -14,6 +14,7 @@ use App\Http\Controllers\SpecificationController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TsparameterController;
 use App\Http\Controllers\UserController;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/optcr', function () {
@@ -293,6 +294,14 @@ Route::get('event/{slug}', [BlogController::class, 'public_event_details'])->nam
 Route::get('/about-us', function () {
     return view('pages.about_us');
 });
+
+Route::get('/mission', function (): View {
+    return view('pages.mission');
+})->name('mission');
+
+Route::get('/values', function (): View {
+    return view('pages.values');
+})->name('values');
 
 Route::get('/videos', function () {
     return view('pages.video_list');

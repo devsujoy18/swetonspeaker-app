@@ -66,6 +66,8 @@ class SeoMetaController extends Controller
                 'speaker/pro-loudspeaker' => $this->pageOption('Pro Loudspeaker', 'category.list', '/speaker/pro-loudspeaker'),
                 'speaker/home-loudspeaker' => $this->pageOption('Home Loudspeaker', 'category.list', '/speaker/home-loudspeaker'),
                 'about-us' => $this->pageOption('About Us', null, '/about-us'),
+                'mission' => $this->pageOption('Mission', 'mission', '/mission'),
+                'values' => $this->pageOption('Values', 'values', '/values'),
                 'events-and-blogs' => $this->pageOption('Events & Blogs', 'public.blogs', '/events-and-blogs'),
                 'blogs' => $this->pageOption('Blogs', 'public.blog.index', '/blogs'),
                 'events' => $this->pageOption('Events', 'public.event.index', '/events'),
