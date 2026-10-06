@@ -190,7 +190,11 @@
             <x-frontend_page_faqs :page-faqs="$pageFaqs" />
         @endif
 
-       <x-frontend_footer></x-frontend_footer>
+        @if (request()->routeIs('ai.chatbot'))
+            <livewire:speaker-finder-widget />
+        @endif
+
+        <x-frontend_footer></x-frontend_footer>
 
 
     </div>

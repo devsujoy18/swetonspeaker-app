@@ -218,6 +218,10 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::get('/ai-chatbot', function () {
+    return view('pages.ai_chatbot');
+})->name('ai.chatbot');
+
 // Route::get('/home-copy', function () {
 //     return view('home_copy');
 // })->name('home');
