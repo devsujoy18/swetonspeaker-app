@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Productcombination;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -127,9 +128,15 @@ class SpeakerFinderWidget extends Component
             return;
         }
 
+        if ($this->applicationOptions() === []) {
+            $this->addMessage('bot', 'There are no active speaker categories for the selected size. Please choose another size.');
+
+            return;
+        }
+
         $this->step = 'application';
         $this->addMessage('user', implode('", "', $this->selectedSizes).'"');
-        $this->addMessage('bot', 'Are you looking for Mid, Mid Bass, Subwoofer, or Full Range?');
+        $this->addMessage('bot', 'Which speaker type or category are you interested in?');
     }
 
     public function chooseApplication(string $application): void
@@ -198,29 +205,39 @@ class SpeakerFinderWidget extends Component
      */
     private function applicationOptions(): array
     {
+        if (! $this->selectedTypeId || $this->selectedSizes === []) {
+            return [];
+        }
+
+        $products = $this->productsMatchingSelectedSizes();
+
         if ($this->selectedTypeId === 2) {
-            return Category::query()
-                ->where('type_id', 2)
-                ->where('status', 0)
-                ->whereHas('products', function (Builder $query): void {
-                    $query->where('status', 0)
-                        ->whereHas('combinations', fn (Builder $combinationQuery): Builder => $combinationQuery->where('status', 0));
-                })
-                ->orderBy('order_no')
-                ->get(['id', 'name'])
+            return $products
+                ->pluck('category')
+                ->filter()
+                ->unique('id')
+                ->sortBy('order_no')
                 ->map(fn (Category $category): array => [
                     'value' => 'category-'.$category->id,
                     'label' => $category->name,
                 ])
+                ->values()
                 ->all();
         }
 
-        return [
-            ['value' => 'mid', 'label' => 'Mid'],
-            ['value' => 'mid_bass', 'label' => 'Mid Bass'],
-            ['value' => 'subwoofer', 'label' => 'Subwoofer'],
-            ['value' => 'full_range', 'label' => 'Full Range'],
+        $labels = [
+            'mid' => 'Mid',
+            'mid_bass' => 'Mid Bass',
+            'subwoofer' => 'Subwoofer',
+            'full_range' => 'Full Range',
         ];
+
+        return $products
+            ->flatMap(fn (Product $product): array => $this->applicationsForProduct($product))
+            ->unique()
+            ->map(fn (string $value): array => ['value' => $value, 'label' => $labels[$value]])
+            ->values()
+            ->all();
     }
 
     /**
@@ -232,18 +249,8 @@ class SpeakerFinderWidget extends Component
             return [];
         }
 
-        $products = $this->activeProductsQuery($this->selectedTypeId)
-            ->with([
-                'category',
-                'productimages' => fn ($query) => $query->where('status', 0)->orderBy('order_no')->limit(1),
-                'combinations' => fn ($query) => $query->where('status', 0)->orderBy('order_no'),
-                'tags' => fn ($query) => $query->where('status', 0),
-            ])
-            ->orderBy('order_no')
-            ->get();
-
-        return $products
-            ->filter(fn (Product $product): bool => $this->matchesSelection($product))
+        return $this->productsMatchingSelectedSizes()
+            ->filter(fn (Product $product): bool => $this->matchesApplication($product))
             ->map(fn (Product $product): array => [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -262,28 +269,65 @@ class SpeakerFinderWidget extends Component
             ->all();
     }
 
-    private function matchesSelection(Product $product): bool
+    /**
+     * @return Collection<int, Product>
+     */
+    private function productsMatchingSelectedSizes(): Collection
     {
-        $selectedSizes = array_map('intval', $this->selectedSizes);
-
-        if (! in_array($this->productSize($product->name), $selectedSizes, true)) {
-            return false;
+        if (! $this->selectedTypeId) {
+            return collect();
         }
 
+        $selectedSizes = array_map('intval', $this->selectedSizes);
+
+        return $this->activeProductsQuery($this->selectedTypeId)
+            ->with([
+                'category',
+                'productimages' => fn ($query) => $query->where('status', 0)->orderBy('order_no')->limit(1),
+                'combinations' => fn ($query) => $query->where('status', 0)->orderBy('order_no'),
+                'tags' => fn ($query) => $query->where('status', 0),
+            ])
+            ->orderBy('order_no')
+            ->get()
+            ->filter(fn (Product $product): bool => in_array($this->productSize($product->name), $selectedSizes, true))
+            ->values();
+    }
+
+    private function matchesApplication(Product $product): bool
+    {
         if ($this->selectedTypeId === 2 && str_starts_with($this->selectedApplication, 'category-')) {
             return (int) $product->category_id === (int) str_replace('category-', '', $this->selectedApplication);
         }
 
+        return in_array($this->selectedApplication, $this->applicationsForProduct($product), true);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function applicationsForProduct(Product $product): array
+    {
         $name = Str::upper($product->name);
         $tags = $product->tags->pluck('title')->map(fn (string $title): string => Str::lower($title));
+        $applications = [];
 
-        return match ($this->selectedApplication) {
-            'mid' => Str::contains($name, ' MID') || $tags->contains('midrange'),
-            'mid_bass' => Str::contains($name, ' MB') || $tags->contains('mid-bass'),
-            'subwoofer' => Str::contains($name, ' SUB') || $tags->contains('subwoofer'),
-            'full_range' => Str::contains($name, ' FR') || Str::contains($name, 'FULL RANGE'),
-            default => false,
-        };
+        if (Str::contains($name, ' MID') || $tags->contains('midrange')) {
+            $applications[] = 'mid';
+        }
+
+        if (Str::contains($name, ' MB') || $tags->contains('mid-bass')) {
+            $applications[] = 'mid_bass';
+        }
+
+        if (Str::contains($name, ' SUB') || $tags->contains('subwoofer')) {
+            $applications[] = 'subwoofer';
+        }
+
+        if (Str::contains($name, ' FR') || Str::contains($name, 'FULL RANGE')) {
+            $applications[] = 'full_range';
+        }
+
+        return $applications;
     }
 
     private function activeProductsQuery(int $typeId): Builder
