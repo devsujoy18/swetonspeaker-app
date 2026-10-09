@@ -20,6 +20,53 @@
             z-index: 1080;
         }
 
+        .speaker-finder-widget__launcher::before,
+        .speaker-finder-widget__launcher::after {
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            transition: opacity .2s ease, transform .2s ease;
+            visibility: hidden;
+        }
+
+        .speaker-finder-widget__launcher::after {
+            background: #303030;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .2);
+            color: #fff;
+            content: attr(data-tooltip);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.4;
+            max-width: min(230px, calc(100vw - 100px));
+            padding: 10px 12px;
+            right: calc(100% + 12px);
+            text-align: left;
+            top: 50%;
+            transform: translate(6px, -50%);
+            white-space: normal;
+            width: max-content;
+        }
+
+        .speaker-finder-widget__launcher::before {
+            border: 6px solid transparent;
+            border-left-color: #303030;
+            content: '';
+            right: calc(100% + 1px);
+            top: 50%;
+            transform: translate(6px, -50%);
+        }
+
+        .speaker-finder-widget__launcher:hover::before,
+        .speaker-finder-widget__launcher:hover::after,
+        .speaker-finder-widget__launcher:focus-visible::before,
+        .speaker-finder-widget__launcher:focus-visible::after {
+            opacity: 1;
+            transform: translate(0, -50%);
+            visibility: visible;
+        }
+
         .speaker-finder-widget__panel {
             background: #fff;
             border-radius: 14px;
@@ -283,7 +330,7 @@
     @endif
 
     @if(! $isOpen)
-        <button type="button" class="speaker-finder-widget__launcher" wire:click="openWidget" wire:loading.attr="disabled" wire:target="openWidget" aria-label="Open speaker finder" aria-expanded="false">
+        <button type="button" class="speaker-finder-widget__launcher" data-tooltip="Need help finding your perfect speaker? Let's find it together!" wire:click="openWidget" wire:loading.attr="disabled" wire:target="openWidget" aria-label="Open speaker finder. Need help finding your perfect speaker? Let's find it together." aria-expanded="false">
             <span wire:loading.remove wire:target="openWidget">
                 <i class="fas fa-comments" aria-hidden="true"></i>
             </span>
