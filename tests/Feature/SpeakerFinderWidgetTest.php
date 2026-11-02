@@ -31,7 +31,7 @@ class SpeakerFinderWidgetTest extends TestCase
             ->call('openWidget')
             ->call('chooseSeries', 1)
             ->assertSet('step', 'filter')
-            ->assertSee('Tags')
+            ->assertSee('Category')
             ->assertSee('Sizes')
             ->call('chooseFilter', 'tag')
             ->assertSee($tag->title)
@@ -92,7 +92,7 @@ class SpeakerFinderWidgetTest extends TestCase
         $widget->call('chooseTag', $tag->id)
             ->assertSet('step', 'tag')
             ->assertSet('results', [])
-            ->assertSee('Please choose one of the available tags.');
+            ->assertSee('Please choose one of the available categories.');
     }
 
     private function createProduct(int $typeId, string $name, int $status = 0): Product

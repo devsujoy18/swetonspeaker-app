@@ -80,7 +80,7 @@ class SpeakerFinderWidget extends Component
         $this->results = [];
         $this->step = 'filter';
         $this->addMessage('user', $series['label']);
-        $this->addMessage('bot', 'Would you like to browse by tags or sizes?');
+        $this->addMessage('bot', 'Would you like to browse by category or sizes?');
     }
 
     public function chooseFilter(string $filter): void
@@ -90,9 +90,9 @@ class SpeakerFinderWidget extends Component
         }
 
         $this->step = $filter;
-        $this->addMessage('user', $filter === 'tag' ? 'Tags' : 'Sizes');
+        $this->addMessage('user', $filter === 'tag' ? 'Category' : 'Sizes');
         if ($filter === 'tag') {
-            $this->addMessage('bot', 'Which tag are you interested in?');
+            $this->addMessage('bot', 'Which category are you interested in?');
 
             return;
         }
@@ -108,7 +108,7 @@ class SpeakerFinderWidget extends Component
 
         $tag = collect($this->availableTags())->firstWhere('id', (int) $tagId);
         if (! $tag) {
-            $this->addMessage('bot', 'Please choose one of the available tags.');
+            $this->addMessage('bot', 'Please choose one of the available categories.');
 
             return;
         }
@@ -118,7 +118,7 @@ class SpeakerFinderWidget extends Component
         $this->step = 'results';
         $this->addMessage('user', $tag['label']);
         $this->addMessage('bot', $this->results === []
-            ? 'I could not find an active product for that tag. Please try another tag.'
+            ? 'I could not find an active product for that category. Please try another category.'
             : 'Here are the matching Sweton speakers.');
     }
 

@@ -280,7 +280,7 @@
                     </div>
                 @elseif($step === 'filter')
                     <div class="speaker-finder-widget__choices">
-                        <button type="button" class="speaker-finder-widget__choice" wire:click="chooseFilter('tag')">Tags</button>
+                        <button type="button" class="speaker-finder-widget__choice" wire:click="chooseFilter('tag')">Category</button>
                         <button type="button" class="speaker-finder-widget__choice" wire:click="chooseFilter('size')">Sizes</button>
                     </div>
                 @elseif($step === 'tag')
@@ -290,7 +290,7 @@
                                 {{ $tag['label'] }}
                             </button>
                         @empty
-                            <p class="speaker-finder-widget__selected">No tags are available for this series.</p>
+                            <p class="speaker-finder-widget__selected">No categories are available for this series.</p>
                         @endforelse
                     </div>
                 @elseif($step === 'size')
