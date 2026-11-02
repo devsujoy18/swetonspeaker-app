@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Productcombination;
+use App\Models\Tag;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -20,6 +21,8 @@ class SpeakerFinderWidget extends Component
     public ?int $selectedTypeId = null;
 
     public array $selectedSizes = [];
+
+    public ?int $selectedTagId = null;
 
     public string $sizeInput = '';
 
@@ -49,6 +52,7 @@ class SpeakerFinderWidget extends Component
         $this->step = 'series';
         $this->selectedTypeId = null;
         $this->selectedSizes = [];
+        $this->selectedTagId = null;
         $this->sizeInput = '';
         $this->selectedApplication = null;
         $this->results = [];
@@ -71,11 +75,89 @@ class SpeakerFinderWidget extends Component
 
         $this->selectedTypeId = $typeId;
         $this->selectedSizes = [];
+        $this->selectedTagId = null;
         $this->selectedApplication = null;
         $this->results = [];
-        $this->step = 'size';
+        $this->step = 'filter';
         $this->addMessage('user', $series['label']);
+        $this->addMessage('bot', 'Would you like to browse by tags or sizes?');
+    }
+
+    public function chooseFilter(string $filter): void
+    {
+        if ($this->step !== 'filter' || ! in_array($filter, ['tag', 'size'], true)) {
+            return;
+        }
+
+        $this->step = $filter;
+        $this->addMessage('user', $filter === 'tag' ? 'Tags' : 'Sizes');
+        if ($filter === 'tag') {
+            $this->addMessage('bot', 'Which tag are you interested in?');
+
+            return;
+        }
+
         $this->addMessage('bot', 'In which size are you interested? You can select more than one size or type them below.');
+    }
+
+    public function chooseTag(int|string $tagId): void
+    {
+        if ($this->step !== 'tag') {
+            return;
+        }
+
+        $tag = collect($this->availableTags())->firstWhere('id', (int) $tagId);
+        if (! $tag) {
+            $this->addMessage('bot', 'Please choose one of the available tags.');
+
+            return;
+        }
+
+        $this->selectedTagId = $tag['id'];
+        $this->results = $this->findProducts();
+        $this->step = 'results';
+        $this->addMessage('user', $tag['label']);
+        $this->addMessage('bot', $this->results === []
+            ? 'I could not find an active product for that tag. Please try another tag.'
+            : 'Here are the matching Sweton speakers.');
+    }
+
+    public function goBack(): void
+    {
+        $previousStep = match ($this->step) {
+            'filter' => 'series',
+            'size', 'tag' => 'filter',
+            'application' => 'size',
+            'results' => $this->selectedTagId !== null ? 'tag' : 'application',
+            default => null,
+        };
+
+        if ($previousStep === null) {
+            return;
+        }
+
+        $this->step = $previousStep;
+        $this->results = [];
+        if ($previousStep === 'series') {
+            $this->selectedTypeId = null;
+        }
+        if ($previousStep === 'filter') {
+            $this->selectedSizes = [];
+            $this->sizeInput = '';
+            $this->selectedTagId = null;
+        }
+        if ($previousStep === 'tag') {
+            $this->selectedTagId = null;
+        }
+        if ($previousStep === 'size' || $previousStep === 'application') {
+            $this->selectedApplication = null;
+        }
+
+        while ($this->messages !== []) {
+            if (array_pop($this->messages)['role'] === 'user') {
+                break;
+            }
+        }
     }
 
     public function toggleSize(int|string $size): void
@@ -201,6 +283,24 @@ class SpeakerFinderWidget extends Component
     }
 
     /**
+     * @return array<int, array{id: int, label: string}>
+     */
+    private function availableTags(): array
+    {
+        if (! $this->selectedTypeId) {
+            return [];
+        }
+
+        return Tag::query()
+            ->where('status', 0)
+            ->whereHas('products', fn (Builder $query): Builder => $this->activeProductsQuery($this->selectedTypeId, $query))
+            ->orderBy('title')
+            ->get(['id', 'title'])
+            ->map(fn (Tag $tag): array => ['id' => $tag->id, 'label' => $tag->title])
+            ->all();
+    }
+
+    /**
      * @return array<int, array{value: string, label: string}>
      */
     private function applicationOptions(): array
@@ -245,12 +345,20 @@ class SpeakerFinderWidget extends Component
      */
     private function findProducts(): array
     {
-        if (! $this->selectedTypeId || ! $this->selectedApplication) {
+        if (! $this->selectedTypeId || ($this->selectedTagId === null && ! $this->selectedApplication)) {
             return [];
         }
 
-        return $this->productsMatchingSelectedSizes()
-            ->filter(fn (Product $product): bool => $this->matchesApplication($product))
+        $products = $this->selectedTagId !== null
+            ? $this->activeProductsQuery($this->selectedTypeId)
+                ->whereHas('tags', fn (Builder $query): Builder => $query->whereKey($this->selectedTagId)->where('status', 0))
+                ->with(['category', 'productimages' => fn ($query) => $query->where('status', 0)->orderBy('order_no')->limit(1), 'combinations' => fn ($query) => $query->where('status', 0)->orderBy('order_no')])
+                ->orderBy('order_no')
+                ->get()
+            : $this->productsMatchingSelectedSizes()
+                ->filter(fn (Product $product): bool => $this->matchesApplication($product));
+
+        return $products
             ->map(fn (Product $product): array => [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -330,9 +438,9 @@ class SpeakerFinderWidget extends Component
         return $applications;
     }
 
-    private function activeProductsQuery(int $typeId): Builder
+    private function activeProductsQuery(int $typeId, ?Builder $query = null): Builder
     {
-        return Product::query()
+        return ($query ?? Product::query())
             ->where('status', 0)
             ->whereHas('category', function (Builder $query) use ($typeId): void {
                 $query->where('type_id', $typeId)
@@ -360,6 +468,7 @@ class SpeakerFinderWidget extends Component
         return view('livewire.speaker-finder-widget', [
             'seriesOptions' => $this->seriesOptions(),
             'availableSizes' => $this->availableSizes(),
+            'availableTags' => $this->availableTags(),
             'applicationOptions' => $this->applicationOptions(),
         ]);
     }

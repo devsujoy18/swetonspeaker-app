@@ -236,6 +236,10 @@
             padding: 0;
         }
 
+        .speaker-finder-widget__reset + .speaker-finder-widget__reset {
+            margin-left: 16px;
+        }
+
         @media (max-width: 575px) {
             .speaker-finder-widget__launcher {
                 bottom: auto;
@@ -273,6 +277,21 @@
                                 {{ $option['label'] }}
                             </button>
                         @endforeach
+                    </div>
+                @elseif($step === 'filter')
+                    <div class="speaker-finder-widget__choices">
+                        <button type="button" class="speaker-finder-widget__choice" wire:click="chooseFilter('tag')">Tags</button>
+                        <button type="button" class="speaker-finder-widget__choice" wire:click="chooseFilter('size')">Sizes</button>
+                    </div>
+                @elseif($step === 'tag')
+                    <div class="speaker-finder-widget__choices">
+                        @forelse($availableTags as $tag)
+                            <button type="button" wire:key="speaker-finder-tag-{{ $tag['id'] }}" class="speaker-finder-widget__choice" wire:click="chooseTag({{ $tag['id'] }})">
+                                {{ $tag['label'] }}
+                            </button>
+                        @empty
+                            <p class="speaker-finder-widget__selected">No tags are available for this series.</p>
+                        @endforelse
                     </div>
                 @elseif($step === 'size')
                     <div class="speaker-finder-widget__choices">
@@ -323,8 +342,12 @@
                         </div>
                     @endif
 
-                    <button type="button" class="speaker-finder-widget__reset" wire:click="resetConversation">Start over</button>
                 @endif
+
+                @if($step !== 'series')
+                    <button type="button" class="speaker-finder-widget__reset" wire:click="goBack">Back</button>
+                @endif
+                <button type="button" class="speaker-finder-widget__reset" wire:click="resetConversation">Start over</button>
             </div>
         </section>
     @endif
