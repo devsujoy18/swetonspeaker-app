@@ -3,15 +3,22 @@
 namespace App\Livewire;
 
 use App\Models\Tag;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class TagManager extends Component
 {
     public $tagId = null;
+
     public $title = '';
+
     public $status = 0;
+
+    public $orderNo = 0;
+
     public $typeId = null;
+
     public $types = [
         1 => 'Pro Loudspeaker',
         2 => 'Home Loudspeaker',
@@ -29,6 +36,7 @@ class TagManager extends Component
         $this->tagId = $tag->id;
         $this->title = $tag->title;
         $this->status = (int) $tag->status;
+        $this->orderNo = $tag->order_no;
         $this->typeId = $tag->type_id;
         $this->resetValidation();
         $this->dispatch('open-modal', name: 'tag-form');
@@ -45,6 +53,7 @@ class TagManager extends Component
             ],
             'typeId' => ['nullable', 'integer'],
             'status' => ['required', 'integer', 'in:0,1'],
+            'orderNo' => ['nullable', 'integer', 'min:0'],
         ]);
 
         Tag::updateOrCreate(
@@ -53,8 +62,12 @@ class TagManager extends Component
                 'title' => $this->title,
                 'type_id' => (int) $this->typeId,
                 'status' => (int) $this->status,
+                'order_no' => $this->orderNo === null || $this->orderNo === '' ? 0 : (int) $this->orderNo,
             ]
         );
+
+        Cache::forget('home.tags.1');
+        Cache::forget('home.tags.2');
 
         session()->flash('success', $this->tagId ? 'Tag updated successfully.' : 'Tag created successfully.');
 
@@ -81,13 +94,14 @@ class TagManager extends Component
         $this->tagId = null;
         $this->title = '';
         $this->status = 0;
+        $this->orderNo = 0;
         $this->resetValidation();
     }
 
     public function render()
     {
         return view('livewire.tag-manager', [
-            'tags' => Tag::orderBy('title')->get(),
+            'tags' => Tag::orderBy('order_no')->orderBy('id')->get(),
         ]);
     }
 }

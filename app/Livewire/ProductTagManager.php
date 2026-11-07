@@ -146,7 +146,7 @@ class ProductTagManager extends Component
     {
         return view('livewire.product-tag-manager', [
             'products' => Product::with('tags')->withCount('qrCodes')->orderBy('order_no')->get(),
-            'allTags' => Tag::where('status', 0)->orderBy('title')->get(),
+            'allTags' => Tag::where('status', 0)->orderBy('order_no')->orderBy('id')->get(),
         ]);
     }
 }

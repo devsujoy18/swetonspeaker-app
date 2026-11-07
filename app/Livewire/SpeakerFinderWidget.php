@@ -294,7 +294,8 @@ class SpeakerFinderWidget extends Component
         return Tag::query()
             ->where('status', 0)
             ->whereHas('products', fn (Builder $query): Builder => $this->activeProductsQuery($this->selectedTypeId, $query))
-            ->orderBy('title')
+            ->orderBy('order_no')
+            ->orderBy('id')
             ->get(['id', 'title'])
             ->map(fn (Tag $tag): array => ['id' => $tag->id, 'label' => $tag->title])
             ->all();

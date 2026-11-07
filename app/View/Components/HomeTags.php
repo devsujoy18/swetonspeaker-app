@@ -26,7 +26,8 @@ class HomeTags extends Component
                 ->select(['id', 'title', 'slug', 'type_id'])
                 ->where('type_id', $this->typeId)
                 ->where('status', 0)
-                ->orderBy('title')
+                ->orderBy('order_no')
+                ->orderBy('id')
                 ->get();
         });
     }

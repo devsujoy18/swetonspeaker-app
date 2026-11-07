@@ -95,6 +95,23 @@ class SpeakerFinderWidgetTest extends TestCase
             ->assertSee('Please choose one of the available categories.');
     }
 
+    public function test_chatbot_tag_options_follow_order_number_then_id(): void
+    {
+        $product = $this->createProduct(1, '8 Finder MID');
+        $first = $this->createTag('Finder first '.Str::uuid(), $product);
+        $second = $this->createTag('Finder second '.Str::uuid(), $product);
+        $third = $this->createTag('Finder third '.Str::uuid(), $product);
+        $first->update(['order_no' => 2]);
+        $second->update(['order_no' => 1]);
+        $third->update(['order_no' => 1]);
+
+        Livewire::test(SpeakerFinderWidget::class)
+            ->call('openWidget')
+            ->call('chooseSeries', 1)
+            ->call('chooseFilter', 'tag')
+            ->assertSeeInOrder([$second->title, $third->title, $first->title]);
+    }
+
     private function createProduct(int $typeId, string $name, int $status = 0): Product
     {
         $category = new Category;

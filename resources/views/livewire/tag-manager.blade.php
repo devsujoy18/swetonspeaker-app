@@ -16,6 +16,7 @@
                     <tr>
                         <th>Sl No</th>
                         <th>Name</th>
+                        <th>Order No</th>
                         <th>Type</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -26,6 +27,7 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $tag->title }}</td>
+                            <td>{{ $tag->order_no }}</td>
                             <td>{{ $this->types[$tag->type_id] ?? 'N/A' }}</td>
                             <td>
                                 @if($tag->status == 0)
@@ -54,7 +56,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center">No data found</td>
+                            <td colspan="6" class="text-center">No data found</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -69,6 +71,11 @@
                     <label for="tag-title">Name</label>
                     <input id="tag-title" type="text" class="form-control" wire:model.defer="title" placeholder="Enter tag name">
                     @error('title') <span class="text-danger">{{ $message }}</span> @enderror
+                </div>
+                <div class="form-group">
+                    <label for="tag-order-no">Order No</label>
+                    <input id="tag-order-no" type="number" min="0" step="1" class="form-control" wire:model.defer="orderNo" placeholder="Enter order number">
+                    @error('orderNo') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
                 <div class="form-group">
                     <label for="tag-type">Type</label>
